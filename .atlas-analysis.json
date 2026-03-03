@@ -1,0 +1,118 @@
+{
+  "projectType": "general",
+  "projectName": "Essential",
+  "projectDescription": "A quality of life mod that boosts Minecraft Java Edition to the next level with cosmetics, screenshots, multiplayer hosting, and developer APIs.",
+  "theme": "palm",
+  "primaryColor": "#8B5CF6",
+  "lightColor": "#A78BFA",
+  "darkColor": "#6D28D9",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": [
+              "introduction",
+              "installation",
+              "building"
+            ]
+          },
+          {
+            "group": "Features",
+            "pages": [
+              "features/overview",
+              "features/screenshots",
+              "features/cosmetics",
+              "features/multiplayer",
+              "features/ui-improvements"
+            ]
+          },
+          {
+            "group": "Guides",
+            "pages": [
+              "guides/verifying-checksums",
+              "guides/container-vs-pinned",
+              "guides/loader-stages"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Developer API",
+        "groups": [
+          {
+            "group": "Getting Started",
+            "pages": [
+              "api/overview",
+              "api/setup"
+            ]
+          },
+          {
+            "group": "Core APIs",
+            "pages": [
+              "api/commands",
+              "api/gui",
+              "api/notifications",
+              "api/cosmetics",
+              "api/config"
+            ]
+          },
+          {
+            "group": "Utilities",
+            "pages": [
+              "api/utils/minecraft",
+              "api/utils/mojang-api",
+              "api/utils/multithreading",
+              "api/utils/dependency-injection"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Reference",
+        "groups": [
+          {
+            "group": "Technical",
+            "pages": [
+              "reference/architecture",
+              "reference/supported-versions",
+              "reference/platforms",
+              "reference/ci-builds"
+            ]
+          },
+          {
+            "group": "Contributing",
+            "pages": [
+              "reference/license",
+              "reference/faq"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "Screenshot management with editing and sharing",
+    "Cosmetics system with capes and wardrobe",
+    "Multiplayer hosting (Invite Friends/SPS)",
+    "Developer API for commands, GUI, and notifications",
+    "Cross-platform support (Forge, Fabric, NeoForge)",
+    "Multi-version support (1.8.9 to 1.21.x)",
+    "GUI framework with Elementa and Vigilance",
+    "Asynchronous screenshot capture"
+  ],
+  "publicApiSurface": [
+    "EssentialAPI.getInstance()",
+    "CommandRegistry - Register custom commands",
+    "Notifications - Display notifications to users",
+    "EssentialComponentFactory - Create UI components",
+    "GuiUtil - GUI utilities",
+    "MinecraftUtils - Minecraft-related utilities",
+    "MojangAPI - Interact with Mojang API",
+    "EssentialConfig - Access Essential settings",
+    "ImageCache - Skin image caching",
+    "DI - Dependency injection system"
+  ]
+}
