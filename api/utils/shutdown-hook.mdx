@@ -1,0 +1,246 @@
+---
+title: ShutdownHookUtil
+description: Register code to run when the game closes
+---
+
+The `ShutdownHookUtil` interface provides a safe way to run cleanup code when Minecraft is closing, without directly using Java's `Runtime.addShutdownHook()`.
+
+## Getting ShutdownHookUtil
+
+```kotlin
+val shutdownHook = EssentialAPI.getShutdownHookUtil()
+```
+
+```java
+ShutdownHookUtil shutdownHook = EssentialAPI.getShutdownHookUtil();
+```
+
+## Registering shutdown tasks
+
+### register()
+
+Register a `Runnable` to be executed when the game closes.
+
+```kotlin
+shutdownHook.register {
+    println("Game is closing, running cleanup...")
+    // Your cleanup code here
+}
+```
+
+```java
+shutdownHook.register(() -> {
+    System.out.println("Game is closing, running cleanup...");
+    // Your cleanup code here
+});
+```
+
+<ParamField path="task" type="Runnable" required>
+  The task to run on shutdown
+</ParamField>
+
+<Note>
+Shutdown tasks are executed synchronously when the game closes. Keep them fast to avoid delaying shutdown.
+</Note>
+
+## Unregistering shutdown tasks
+
+### unregister()
+
+Remove a previously registered `Runnable` from the shutdown hook list.
+
+```kotlin
+val cleanupTask = Runnable {
+    println("Cleanup")
+}
+
+// Register
+shutdownHook.register(cleanupTask)
+
+// Later, unregister if no longer needed
+shutdownHook.unregister(cleanupTask)
+```
+
+```java
+Runnable cleanupTask = () -> {
+    System.out.println("Cleanup");
+};
+
+// Register
+shutdownHook.register(cleanupTask);
+
+// Later, unregister if no longer needed
+shutdownHook.unregister(cleanupTask);
+```
+
+<ParamField path="task" type="Runnable" required>
+  The task to unregister
+</ParamField>
+
+<Warning>
+You must pass the exact same `Runnable` instance to `unregister()` that was passed to `register()`. Lambda expressions create new instances, so store the task in a variable if you need to unregister it later.
+</Warning>
+
+## Example: Resource cleanup
+
+```kotlin
+import gg.essential.api.EssentialAPI
+import java.io.Closeable
+
+class ResourceManager : Closeable {
+    private val resources = mutableListOf<Closeable>()
+    private val shutdownTask: Runnable
+    
+    init {
+        // Create shutdown task
+        shutdownTask = Runnable {
+            cleanup()
+        }
+        
+        // Register it
+        EssentialAPI.getShutdownHookUtil().register(shutdownTask)
+    }
+    
+    fun addResource(resource: Closeable) {
+        resources.add(resource)
+    }
+    
+    private fun cleanup() {
+        println("Cleaning up ${resources.size} resources...")
+        for (resource in resources) {
+            try {
+                resource.close()
+            } catch (e: Exception) {
+                println("Failed to close resource: ${e.message}")
+            }
+        }
+        resources.clear()
+    }
+    
+    override fun close() {
+        // Unregister shutdown hook when manually closed
+        EssentialAPI.getShutdownHookUtil().unregister(shutdownTask)
+        cleanup()
+    }
+}
+```
+
+## Example: Saving configuration
+
+```kotlin
+import gg.essential.api.EssentialAPI
+import java.io.File
+
+class ConfigManager {
+    private val configFile = File("config/mymod.json")
+    private var config = loadConfig()
+    
+    init {
+        // Register save on shutdown
+        EssentialAPI.getShutdownHookUtil().register {
+            saveConfig()
+        }
+    }
+    
+    private fun loadConfig(): Config {
+        // Load configuration from file
+        return if (configFile.exists()) {
+            Config.fromJson(configFile.readText())
+        } else {
+            Config()
+        }
+    }
+    
+    private fun saveConfig() {
+        println("Saving configuration...")
+        configFile.parentFile.mkdirs()
+        configFile.writeText(config.toJson())
+        println("Configuration saved")
+    }
+    
+    fun updateSetting(key: String, value: Any) {
+        config.set(key, value)
+        // Config will be saved automatically on shutdown
+    }
+}
+```
+
+## Best practices
+
+### Keep shutdown tasks fast
+
+Shutdown tasks run synchronously and block the game from closing. Keep them as fast as possible:
+
+```kotlin
+// Good: Fast, essential cleanup
+shutdownHook.register {
+    configManager.save()
+    connectionPool.close()
+}
+
+// Bad: Slow, non-essential operations
+shutdownHook.register {
+    // Don't do this - too slow!
+    uploadStatistics()
+    downloadUpdates()
+    sendAnalytics()
+}
+```
+
+### Store task references for unregistering
+
+If you need to unregister a task later, store it in a variable:
+
+```kotlin
+class MyManager {
+    private val shutdownTask = Runnable {
+        cleanup()
+    }
+    
+    fun enable() {
+        EssentialAPI.getShutdownHookUtil().register(shutdownTask)
+    }
+    
+    fun disable() {
+        EssentialAPI.getShutdownHookUtil().unregister(shutdownTask)
+        cleanup()
+    }
+}
+```
+
+### Handle exceptions gracefully
+
+Always handle exceptions in shutdown tasks to avoid breaking other shutdown hooks:
+
+```kotlin
+shutdownHook.register {
+    try {
+        riskyCleanupOperation()
+    } catch (e: Exception) {
+        println("Cleanup failed: ${e.message}")
+        e.printStackTrace()
+    }
+}
+```
+
+## Why use ShutdownHookUtil?
+
+Using `ShutdownHookUtil` instead of `Runtime.addShutdownHook()` provides several benefits:
+
+- **Coordination** - Essential can manage shutdown order
+- **Error handling** - Built-in exception handling and logging
+- **Testability** - Easier to test shutdown behavior
+- **Consistency** - All Essential-related shutdown hooks in one place
+
+<Tip>
+Use `ShutdownHookUtil` for cleanup tasks that **must** run when the game closes, like saving configuration or closing network connections. For optional tasks, consider running them earlier (e.g., when leaving a world).
+</Tip>
+
+## See also
+
+- [Multithreading](/api/utils/multithreading) - Managing background tasks
+- [Minecraft utilities](/api/utils/minecraft) - General Minecraft helpers
+
+<Info>
+Source: `api/src/main/kotlin/gg/essential/api/utils/ShutdownHookUtil.kt`
+</Info>

@@ -1,0 +1,198 @@
+---
+title: WebUtil
+description: Utilities for fetching data from the internet
+---
+
+The `WebUtil` object provides utility methods for making HTTP requests and downloading files.
+
+## Importing WebUtil
+
+```kotlin
+import gg.essential.api.utils.WebUtil
+```
+
+```java
+import gg.essential.api.utils.WebUtil;
+```
+
+## Fetching JSON
+
+### fetchJSON()
+
+Fetch a JSON object from a URL and parse it into a `JsonHolder`.
+
+```kotlin
+val json = WebUtil.fetchJSON("https://api.example.com/data")
+val value = json.optString("key")
+```
+
+```java
+JsonHolder json = WebUtil.fetchJSON("https://api.example.com/data");
+String value = json.optString("key");
+```
+
+<ParamField path="url" type="String" required>
+  The URL to fetch JSON from
+</ParamField>
+
+<Note>
+Returns a `JsonHolder` object which provides methods for safely accessing JSON data.
+</Note>
+
+## Fetching strings
+
+### fetchString()
+
+Fetch the content of a web page as a string.
+
+```kotlin
+val content = WebUtil.fetchString("https://example.com/page")
+if (content != "Failed to fetch") {
+    println("Page content: $content")
+}
+```
+
+```java
+String content = WebUtil.fetchString("https://example.com/page");
+if (!content.equals("Failed to fetch")) {
+    System.out.println("Page content: " + content);
+}
+```
+
+<ParamField path="url" type="String" required>
+  The URL to fetch content from
+</ParamField>
+
+<Warning>
+Returns "Failed to fetch" if the request fails. Always check for this value before using the result.
+</Warning>
+
+## Downloading files
+
+### downloadToFile()
+
+Download a file from a URL and save it to disk.
+
+```kotlin
+import java.io.File
+
+val destination = File("downloads/file.zip")
+WebUtil.downloadToFile(
+    "https://example.com/file.zip",
+    destination,
+    "Mozilla/5.0 (MyMod)"
+)
+```
+
+```java
+import java.io.File;
+
+File destination = new File("downloads/file.zip");
+WebUtil.downloadToFile(
+    "https://example.com/file.zip",
+    destination,
+    "Mozilla/5.0 (MyMod)"
+);
+```
+
+<ParamField path="url" type="String" required>
+  The URL of the file to download
+</ParamField>
+
+<ParamField path="file" type="File" required>
+  The destination file to save the downloaded content
+</ParamField>
+
+<ParamField path="userAgent" type="String" required>
+  The User-Agent header to use for the request
+</ParamField>
+
+<Note>
+This method throws `IOException` if the download fails. Make sure to handle this exception.
+</Note>
+
+## Logging
+
+### LOG property
+
+Enable or disable logging of HTTP requests.
+
+```kotlin
+// Enable logging for debugging
+WebUtil.LOG = true
+
+// Disable logging (default)
+WebUtil.LOG = false
+```
+
+```java
+// Enable logging for debugging
+WebUtil.LOG = true;
+
+// Disable logging (default)
+WebUtil.LOG = false;
+```
+
+When enabled, WebUtil will print information about requests to the console.
+
+## Example: Fetching and parsing data
+
+```kotlin
+import gg.essential.api.utils.WebUtil
+
+class UpdateChecker {
+    fun checkForUpdates(): String? {
+        try {
+            // Enable logging for debugging
+            WebUtil.LOG = true
+            
+            // Fetch version info
+            val json = WebUtil.fetchJSON("https://api.mymod.com/version")
+            
+            val latestVersion = json.optString("version")
+            val downloadUrl = json.optString("download_url")
+            
+            return latestVersion
+        } catch (e: Exception) {
+            println("Failed to check for updates: ${e.message}")
+            return null
+        }
+    }
+    
+    fun downloadUpdate(url: String, destination: File) {
+        try {
+            WebUtil.downloadToFile(url, destination, "MyMod/1.0")
+            println("Update downloaded successfully!")
+        } catch (e: IOException) {
+            println("Failed to download update: ${e.message}")
+        }
+    }
+}
+```
+
+## HTTP configuration
+
+WebUtil uses the following default settings for HTTP connections:
+
+- **Read timeout**: 15 seconds
+- **Connect timeout**: 15 seconds
+- **Method**: GET
+- **Caching**: Enabled
+- **User-Agent**: "Mozilla/4.76 (Essential)" (for fetchString/fetchJSON)
+
+## Error handling
+
+All WebUtil methods handle errors internally and print stack traces to the console. For `fetchString()`, the method returns "Failed to fetch" on error instead of throwing an exception.
+
+<Tip>
+Always check the return value of `fetchString()` for the error sentinel value "Failed to fetch" before processing the result.
+</Tip>
+
+## See also
+
+- [Multithreading](/api/utils/multithreading) - Run web requests asynchronously
+- [Mojang API](/api/utils/mojang-api) - Specialized utilities for Mojang's APIs
+
+<Info>
+Source: `api/src/main/kotlin/gg/essential/api/utils/WebUtil.kt`
+</Info>

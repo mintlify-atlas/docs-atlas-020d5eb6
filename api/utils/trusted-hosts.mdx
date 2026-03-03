@@ -1,0 +1,212 @@
+---
+title: TrustedHostsUtil
+description: Manage Essential's trusted image host list
+---
+
+The `TrustedHostsUtil` interface provides methods for managing Essential's list of trusted image hosts. This is used to control which domains are allowed to load images in Essential's UI.
+
+## Getting TrustedHostsUtil
+
+```kotlin
+val trustedHosts = EssentialAPI.getTrustedHostsUtil()
+```
+
+```java
+TrustedHostsUtil trustedHosts = EssentialAPI.getTrustedHostsUtil();
+```
+
+## Getting trusted hosts
+
+### getTrustedHosts()
+
+Get all hosts from the trusted hosts list.
+
+```kotlin
+val hosts = trustedHosts.getTrustedHosts()
+for (host in hosts) {
+    println("Host: ${host.name} (${host.id})")
+    println("Domains: ${host.domains.joinToString(", ")}")
+}
+```
+
+```java
+Set<TrustedHost> hosts = trustedHosts.getTrustedHosts();
+for (TrustedHost host : hosts) {
+    System.out.println("Host: " + host.getName() + " (" + host.getId() + ")");
+    System.out.println("Domains: " + String.join(", ", host.getDomains()));
+}
+```
+
+Returns a `Set<TrustedHost>` containing all trusted hosts.
+
+### getTrustedHostByID()
+
+Get a specific trusted host by its ID.
+
+```kotlin
+val host = trustedHosts.getTrustedHostByID("imgur")
+if (host != null) {
+    println("Found host: ${host.name}")
+} else {
+    println("Host not found")
+}
+```
+
+```java
+TrustedHost host = trustedHosts.getTrustedHostByID("imgur");
+if (host != null) {
+    System.out.println("Found host: " + host.getName());
+} else {
+    System.out.println("Host not found");
+}
+```
+
+<ParamField path="id" type="String" required>
+  The unique identifier of the host to retrieve
+</ParamField>
+
+Returns the `TrustedHost` if found, or `null` if no host with that ID exists.
+
+## Managing trusted hosts
+
+### addTrustedHost()
+
+Add a new image host to the trusted hosts list.
+
+```kotlin
+val newHost = TrustedHostsUtil.TrustedHost(
+    id = "my-cdn",
+    name = "My CDN",
+    domains = setOf("cdn.example.com", "images.example.com")
+)
+
+trustedHosts.addTrustedHost(newHost)
+```
+
+```java
+TrustedHost newHost = new TrustedHost(
+    "my-cdn",
+    "My CDN",
+    Set.of("cdn.example.com", "images.example.com")
+);
+
+trustedHosts.addTrustedHost(newHost);
+```
+
+<ParamField path="host" type="TrustedHost" required>
+  The trusted host object to add to the list
+</ParamField>
+
+### removeTrustedHost()
+
+Remove an image host from the trusted hosts list.
+
+```kotlin
+trustedHosts.removeTrustedHost("my-cdn")
+```
+
+```java
+trustedHosts.removeTrustedHost("my-cdn");
+```
+
+<ParamField path="hostId" type="String" required>
+  The ID of the host to remove
+</ParamField>
+
+## TrustedHost data class
+
+The `TrustedHost` data class represents a trusted image host:
+
+```kotlin
+data class TrustedHost(
+    val id: String,        // Unique identifier
+    val name: String,      // Display name
+    val domains: Set<String>  // Set of allowed domains
+)
+```
+
+### Properties
+
+<ParamField path="id" type="String">
+  Unique identifier for the host (e.g., "imgur", "discord")
+</ParamField>
+
+<ParamField path="name" type="String">
+  Human-readable name for the host (e.g., "Imgur", "Discord CDN")
+</ParamField>
+
+<ParamField path="domains" type="Set<String>">
+  Set of domain names that are trusted for this host (e.g., "i.imgur.com", "cdn.discordapp.com")
+</ParamField>
+
+## Example: Managing custom image hosts
+
+```kotlin
+import gg.essential.api.EssentialAPI
+import gg.essential.api.utils.TrustedHostsUtil
+import gg.essential.api.utils.TrustedHostsUtil.TrustedHost
+
+class ImageHostManager {
+    private val trustedHosts = EssentialAPI.getTrustedHostsUtil()
+    
+    fun addCustomImageHost() {
+        // Create a new trusted host
+        val customHost = TrustedHost(
+            id = "custom-cdn",
+            name = "Custom Image CDN",
+            domains = setOf(
+                "images.mymod.com",
+                "cdn.mymod.com",
+                "static.mymod.com"
+            )
+        )
+        
+        // Add to trusted list
+        trustedHosts.addTrustedHost(customHost)
+        println("Added custom image host")
+    }
+    
+    fun listAllHosts() {
+        val hosts = trustedHosts.getTrustedHosts()
+        println("Trusted hosts (${hosts.size}):")
+        
+        for (host in hosts) {
+            println("  ${host.name} [${host.id}]")
+            for (domain in host.domains) {
+                println("    - $domain")
+            }
+        }
+    }
+    
+    fun isHostTrusted(hostId: String): Boolean {
+        return trustedHosts.getTrustedHostByID(hostId) != null
+    }
+    
+    fun removeCustomHost() {
+        trustedHosts.removeTrustedHost("custom-cdn")
+        println("Removed custom image host")
+    }
+}
+```
+
+## Use cases
+
+The TrustedHostsUtil is useful for:
+
+- **Adding custom image sources** - Allow images from your mod's CDN
+- **Security** - Control which domains can load images in Essential UI
+- **Debugging** - List all trusted domains for troubleshooting
+- **User safety** - Prevent images from untrusted sources
+
+<Warning>
+Be careful when adding trusted hosts. Only add domains you control or trust, as images from these domains will be loaded in Essential's UI.
+</Warning>
+
+## See also
+
+- [GUI utilities](/api/utils/gui-util) - Screen and GUI management
+- [Web utilities](/api/utils/web-util) - Fetching data from the internet
+
+<Info>
+Source: `api/src/main/kotlin/gg/essential/api/utils/TrustedHostsUtil.kt`
+</Info>

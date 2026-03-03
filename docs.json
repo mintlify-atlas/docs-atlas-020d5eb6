@@ -77,7 +77,12 @@
               "api/utils/minecraft",
               "api/utils/mojang-api",
               "api/utils/multithreading",
-              "api/utils/dependency-injection"
+              "api/utils/dependency-injection",
+              "api/utils/gui-util",
+              "api/utils/web-util",
+              "api/utils/trusted-hosts",
+              "api/utils/shutdown-hook",
+              "api/utils/onboarding-data"
             ]
           }
         ]

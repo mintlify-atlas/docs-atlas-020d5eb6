@@ -1,0 +1,188 @@
+---
+title: OnboardingData
+description: Access Essential's Terms of Service acceptance status
+---
+
+The `OnboardingData` interface provides methods to check whether the player has accepted or denied Essential's Terms of Service (TOS).
+
+## Getting OnboardingData
+
+```kotlin
+val onboardingData = EssentialAPI.getOnboardingData()
+```
+
+```java
+OnboardingData onboardingData = EssentialAPI.getOnboardingData();
+```
+
+## Checking TOS status
+
+### hasAcceptedEssentialTOS()
+
+Check if the player has accepted Essential's Terms of Service.
+
+```kotlin
+val hasAccepted = onboardingData.hasAcceptedEssentialTOS()
+if (hasAccepted) {
+    println("Player has accepted Essential TOS")
+    // Proceed with Essential features
+} else {
+    println("Player has not accepted Essential TOS")
+}
+```
+
+```java
+boolean hasAccepted = onboardingData.hasAcceptedEssentialTOS();
+if (hasAccepted) {
+    System.out.println("Player has accepted Essential TOS");
+    // Proceed with Essential features
+} else {
+    System.out.println("Player has not accepted Essential TOS");
+}
+```
+
+Returns `true` if the player has accepted the TOS, `false` otherwise.
+
+### hasDeniedEssentialTOS()
+
+Check if the player has explicitly denied Essential's Terms of Service.
+
+```kotlin
+val hasDenied = onboardingData.hasDeniedEssentialTOS()
+if (hasDenied) {
+    println("Player has denied Essential TOS")
+    // Handle denied state
+}
+```
+
+```java
+boolean hasDenied = onboardingData.hasDeniedEssentialTOS();
+if (hasDenied) {
+    System.out.println("Player has denied Essential TOS");
+    // Handle denied state
+}
+```
+
+Returns `true` if the player has denied the TOS, `false` otherwise.
+
+## TOS states
+
+A player can be in one of three states:
+
+| State | `hasAcceptedEssentialTOS()` | `hasDeniedEssentialTOS()` |
+|-------|---------------------------|-------------------------|
+| **Not decided** | `false` | `false` |
+| **Accepted** | `true` | `false` |
+| **Denied** | `false` | `true` |
+
+<Note>
+If both methods return `false`, the player has not yet made a decision about the TOS.
+</Note>
+
+## Example: Gating features behind TOS
+
+```kotlin
+import gg.essential.api.EssentialAPI
+
+class SocialFeatureManager {
+    private val onboardingData = EssentialAPI.getOnboardingData()
+    
+    fun canUseSocialFeatures(): Boolean {
+        // Social features require TOS acceptance
+        return onboardingData.hasAcceptedEssentialTOS()
+    }
+    
+    fun openFriendsMenu() {
+        when {
+            onboardingData.hasAcceptedEssentialTOS() -> {
+                // Open friends menu
+                println("Opening friends menu...")
+            }
+            onboardingData.hasDeniedEssentialTOS() -> {
+                // Show message about TOS requirement
+                println("Social features require accepting Essential TOS")
+            }
+            else -> {
+                // Player hasn't decided yet - show TOS prompt
+                println("Please accept or deny Essential TOS to continue")
+            }
+        }
+    }
+}
+```
+
+## Example: Conditional feature initialization
+
+```kotlin
+import gg.essential.api.EssentialAPI
+
+class MyMod {
+    private val onboardingData = EssentialAPI.getOnboardingData()
+    
+    fun initialize() {
+        // Always initialize basic features
+        initializeBasicFeatures()
+        
+        // Only initialize features that depend on Essential if TOS is accepted
+        if (onboardingData.hasAcceptedEssentialTOS()) {
+            initializeEssentialIntegration()
+        } else {
+            println("Essential integration disabled - TOS not accepted")
+        }
+    }
+    
+    private fun initializeBasicFeatures() {
+        println("Initializing basic features...")
+        // Core mod functionality
+    }
+    
+    private fun initializeEssentialIntegration() {
+        println("Initializing Essential integration...")
+        // Features that use Essential API
+        setupNotifications()
+        registerCommands()
+        enableSocialFeatures()
+    }
+}
+```
+
+## Use cases
+
+The OnboardingData API is useful for:
+
+- **Feature gating** - Ensuring players have agreed to TOS before using certain features
+- **Conditional initialization** - Only enabling Essential integration if TOS is accepted
+- **User experience** - Showing appropriate messages based on TOS status
+- **Compliance** - Respecting user consent for data collection or online features
+
+<Warning>
+Do not store or cache TOS status for long periods. Always check the current status through `OnboardingData` when needed, as the player's decision may change.
+</Warning>
+
+## When to check TOS status
+
+You should check TOS status when:
+
+- **Initializing features** that depend on Essential's online services
+- **Opening UIs** that require Essential functionality
+- **Making API calls** to Essential's backend
+- **Enabling social features** like friends list or messaging
+
+You typically don't need to check TOS status for:
+
+- **Local-only features** that don't use Essential's services
+- **Client-side rendering** or cosmetics
+- **Configuration** or settings management
+
+<Tip>
+If your mod provides features that work independently of Essential, check TOS status to gracefully degrade functionality rather than completely disabling your mod.
+</Tip>
+
+## See also
+
+- [Notifications](/api/notifications) - Display notifications to users
+- [Minecraft utilities](/api/utils/minecraft) - General Minecraft helpers
+
+<Info>
+Source: `api/src/main/kotlin/gg/essential/api/data/OnboardingData.kt`
+</Info>

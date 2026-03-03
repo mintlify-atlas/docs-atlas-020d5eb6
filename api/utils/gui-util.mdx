@@ -1,0 +1,143 @@
+---
+title: GuiUtil
+description: Utilities for working with Minecraft's GUI system
+---
+
+The `GuiUtil` interface provides helper functions for safely interacting with Minecraft's GUI system.
+
+## Getting GuiUtil
+
+```kotlin
+val guiUtil = EssentialAPI.getGuiUtil()
+```
+
+```java
+GuiUtil guiUtil = EssentialAPI.getGuiUtil();
+```
+
+## Opening screens
+
+### openScreen()
+
+Queue a new screen for opening. This API ensures the GUI is displayed synchronously, avoiding mouse glitches and rendering issues.
+
+```kotlin
+val myScreen = MyCustomScreen()
+guiUtil.openScreen(myScreen)
+```
+
+```java
+GuiScreen myScreen = new MyCustomScreen();
+guiUtil.openScreen(myScreen);
+```
+
+<ParamField path="screen" type="GuiScreen?" required>
+  The screen to open, or null to close the current screen
+</ParamField>
+
+<Tip>
+Always use `guiUtil.openScreen()` instead of directly setting `Minecraft.currentScreen` to avoid timing issues and mouse glitches.
+</Tip>
+
+## Getting current screen
+
+### openedScreen()
+
+Get the currently open screen, or null if no screen is open.
+
+```kotlin
+val currentScreen = guiUtil.openedScreen()
+if (currentScreen != null) {
+    println("Current screen: ${currentScreen.javaClass.simpleName}")
+}
+```
+
+```java
+GuiScreen currentScreen = guiUtil.openedScreen();
+if (currentScreen != null) {
+    System.out.println("Current screen: " + currentScreen.getClass().getSimpleName());
+}
+```
+
+## GUI scale
+
+### getGuiScale()
+
+Get the current Minecraft GUI scale setting.
+
+```kotlin
+val scale = guiUtil.getGuiScale()
+// Returns -1 for auto, or positive integer for manual scale (1-4)
+```
+
+```java
+int scale = guiUtil.getGuiScale();
+// Returns -1 for auto, or positive integer for manual scale (1-4)
+```
+
+### getGuiScale(step)
+
+Get the GUI scale with a specific step value.
+
+```kotlin
+val scale = guiUtil.getGuiScale(2)
+```
+
+```java
+int scale = guiUtil.getGuiScale(2);
+```
+
+<ParamField path="step" type="Int" required>
+  The step value for scale calculation
+</ParamField>
+
+## Static helpers
+
+The `GuiUtil` companion object provides convenient static methods:
+
+```kotlin
+// Open a screen
+GuiUtil.open(myScreen)
+
+// Get current screen
+val screen = GuiUtil.getOpenedScreen()
+```
+
+```java
+// Open a screen
+GuiUtil.open(myScreen);
+
+// Get current screen
+GuiScreen screen = GuiUtil.getOpenedScreen();
+```
+
+## Example: Safe screen navigation
+
+```kotlin
+import gg.essential.api.EssentialAPI
+import net.minecraft.client.gui.GuiScreen
+
+class MyMod {
+    fun openSettings() {
+        val guiUtil = EssentialAPI.getGuiUtil()
+        
+        // Check if a screen is already open
+        val currentScreen = guiUtil.openedScreen()
+        if (currentScreen != null) {
+            println("A screen is already open, closing it first")
+        }
+        
+        // Open settings screen safely
+        guiUtil.openScreen(SettingsScreen())
+    }
+}
+```
+
+## See also
+
+- [GUI utilities](/api/gui) - EssentialComponentFactory and EssentialGUI
+- [Minecraft utilities](/api/utils/minecraft) - General Minecraft helpers
+
+<Info>
+Source: `api/src/main/kotlin/gg/essential/api/utils/GuiUtil.kt`
+</Info>
