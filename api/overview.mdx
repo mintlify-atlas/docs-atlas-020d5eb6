@@ -1,0 +1,177 @@
+---
+title: "API overview"
+description: "Introduction to the Essential API for mod developers"
+icon: "code"
+---
+
+The Essential API provides a comprehensive set of development tools for Minecraft mod creators. It serves as the central access point for all Essential's public development features, from command registration to notifications and GUI utilities.
+
+## What is the Essential API?
+
+The Essential API (`EssentialAPI`) is an interface that exposes Essential's powerful development tools to third-party mod developers. Rather than building these features from scratch, you can leverage Essential's battle-tested implementations.
+
+All API interfaces can be accessed through the central `EssentialAPI` class, either via `EssentialAPI.getInstance()` or through dependency injection.
+
+## Core APIs
+
+<CardGroup cols={2}>
+  <Card title="Commands" icon="terminal" href="#command-registry">
+    Register custom commands with automatic argument parsing
+  </Card>
+  
+  <Card title="Notifications" icon="bell" href="#notifications">
+    Display beautiful, non-intrusive notifications to users
+  </Card>
+  
+  <Card title="GUI utilities" icon="window" href="#gui-utilities">
+    Tools for working with Minecraft's GUI system
+  </Card>
+  
+  <Card title="Minecraft utilities" icon="cube" href="#minecraft-utilities">
+    General Minecraft-related helper functions
+  </Card>
+</CardGroup>
+
+## Getting the API instance
+
+There are two ways to access the Essential API:
+
+### Direct access
+
+```kotlin
+val api = EssentialAPI.getInstance()
+```
+
+```java
+EssentialAPI api = EssentialAPI.getInstance();
+```
+
+### Dependency injection
+
+```kotlin
+import gg.essential.api.utils.get
+
+val api: EssentialAPI = get()
+```
+
+For more information about using dependency injection with Essential, see the `DI` interface documentation.
+
+## Command registry
+
+Register and manage custom commands with automatic argument parsing. Essential's Command API automatically handles argument types, validation, and usage messages.
+
+```kotlin
+val commandRegistry = EssentialAPI.getCommandRegistry()
+commandRegistry.registerCommand(myCommand)
+```
+
+The Command API supports:
+- Automatic argument parsing for common types (String, Int, Double, Boolean)
+- Custom argument parsers for your own types
+- Subcommands with annotations
+- Optional parameters
+- Auto-generated help commands
+
+See `CommandRegistry` and `Command` class documentation for detailed usage.
+
+## Notifications
+
+Display notifications to users in the bottom-right corner of the screen. Notifications slide out from the right side, similar to Windows 10 notifications, and last approximately 4 seconds unless hovered.
+
+```kotlin
+val notifications = EssentialAPI.getNotifications()
+
+// Simple notification
+notifications.push("Update Available", "A new version is ready to install")
+
+// Notification with action
+notifications.push(
+    title = "Friend Request",
+    message = "Player123 wants to be your friend"
+) {
+    duration = 6f
+    onAction = { /* Handle click */ }
+    type = NotificationType.INFO
+}
+```
+
+Notification features:
+- Customizable duration
+- Click actions
+- Close callbacks
+- Multiple types (GENERAL, INFO, WARNING, ERROR, DISCORD)
+- Custom components
+- Unique IDs to prevent duplicates
+
+## GUI utilities
+
+Utilities for interacting with Minecraft's GUI system safely and synchronously.
+
+```kotlin
+val guiUtil = EssentialAPI.getGuiUtil()
+
+// Open a screen safely
+guiUtil.openScreen(myScreen)
+
+// Get currently open screen
+val currentScreen = guiUtil.openedScreen()
+
+// Get GUI scale
+val scale = guiUtil.getGuiScale()
+```
+
+The `openScreen` method ensures GUIs are displayed synchronously, avoiding mouse glitches and rendering issues.
+
+## Minecraft utilities
+
+General helper functions for common Minecraft operations.
+
+```kotlin
+val mcUtil = EssentialAPI.getMinecraftUtil()
+
+// Send chat messages
+mcUtil.sendMessage("Hello, world!")
+mcUtil.sendChatMessageAndFormat("gui.done")
+
+// Check if on Hypixel
+if (mcUtil.isHypixel()) {
+    // Hypixel-specific code
+}
+
+// Check development environment
+if (mcUtil.isDevelopment()) {
+    // Dev-only features
+}
+
+// Load resource as BufferedImage
+val image = mcUtil.getResourceImage(ResourceLocation("mymod", "textures/icon.png"))
+```
+
+## Additional APIs
+
+The Essential API also provides access to:
+
+- **Essential config** - Access Essential's internal settings via `config()`
+- **Component factory** - Create Essential's Elementa components via `componentFactory()`
+- **Mojang API** - Interact with Mojang's API for UUIDs, profiles, and skins via `mojangAPI()`
+- **Image cache** - Cache for Minecraft skins via `imageCache()`
+- **Trusted hosts** - Manage Essential's trusted image hosts via `trustedHostsUtil()`
+- **Shutdown hooks** - Register shutdown callbacks via `shutdownHookUtil()`
+- **Onboarding data** - Check player's Essential TOS status via `onboardingData()`
+
+## API reference
+
+All API methods are documented with KDoc comments in the source code. Key interfaces:
+
+- `gg.essential.api.EssentialAPI` - Main API interface (api/src/main/kotlin/gg/essential/api/EssentialAPI.kt:28)
+- `gg.essential.api.commands.CommandRegistry` - Command registration (api/src/main/kotlin/gg/essential/api/commands/CommandRegistry.kt:18)
+- `gg.essential.api.commands.Command` - Base command class (api/src/main/kotlin/gg/essential/api/commands/Command.kt:76)
+- `gg.essential.api.gui.Notifications` - Notification system (api/src/main/kotlin/gg/essential/api/gui/Notifications.kt:28)
+- `gg.essential.api.utils.GuiUtil` - GUI utilities (api/src/main/kotlin/gg/essential/api/utils/GuiUtil.kt:20)
+- `gg.essential.api.utils.MinecraftUtils` - Minecraft utilities (api/src/main/kotlin/gg/essential/api/utils/MinecraftUtils.kt:21)
+
+## Next steps
+
+<Card title="Set up your project" icon="wrench" href="/api/setup">
+  Learn how to add Essential API to your mod project
+</Card>

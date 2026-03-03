@@ -1,0 +1,290 @@
+---
+title: Loader stages
+description: Understanding the Essential loader's multi-stage architecture
+---
+
+The Essential Loader uses a multi-stage architecture to handle the complexities of loading across different Minecraft versions and mod loaders. This guide explains how the stages work.
+
+## Overview
+
+The Essential Loader is split into three distinct stages, each with specific responsibilities. This staged approach allows Essential to:
+
+- Support multiple Minecraft versions with minimal code duplication
+- Handle different mod loader platforms (Fabric, Forge/LaunchWrapper, ModLauncher)
+- Update components independently
+- Maintain compatibility across a wide range of environments
+
+<Info>
+For detailed technical documentation, refer to `loader/docs/stages.md` in the Essential Loader repository.
+</Info>
+
+## Stage architecture
+
+Each stage has one jar file per platform (Fabric, LaunchWrapper, ModLauncher8, ModLauncher9). The stages are loaded sequentially, with each stage preparing the environment for the next.
+
+### Stage progression
+
+<Steps>
+  <Step title="Stage 1: Initial loading">
+    The first stage is loaded by the mod loader and initializes the Essential loading process.
+  </Step>
+  
+  <Step title="Stage 2: Platform abstraction">
+    The second stage provides platform-specific compatibility and prepares the environment.
+  </Step>
+  
+  <Step title="Stage 3: Essential core">
+    The final stage loads the actual Essential mod and its features.
+  </Step>
+</Steps>
+
+## Stage 1: Bootstrap
+
+### Purpose
+
+Stage 1 is the entry point for Essential. It's the code that the mod loader (Fabric, Forge, etc.) directly loads and executes.
+
+### Responsibilities
+
+- Initial detection and validation
+- Determining which version of Essential to load
+- Extracting and preparing Stage 2
+- Handling version conflicts between multiple Essential sources
+
+### File location
+
+In your `.minecraft` folder:
+```
+.minecraft/essential/loader/stage1.jar
+```
+
+In the repository (after building):
+```
+loader/stage1/<platform>/build/libs/
+```
+
+### Source location
+
+Stage 1 is extracted from:
+- Container mods in `.minecraft/mods/` folder
+- Main Essential jar in `.minecraft/essential/` folder
+- Whichever source has the most recent version is used
+
+### Platform variants
+
+| Platform | Description |
+|----------|-------------|
+| `fabric` | For all Fabric mod loader versions |
+| `launchwrapper` | For Forge on MC 1.8.9 and 1.12.2 |
+| `modlauncher8` | For Forge on MC 1.16.5 |
+| `modlauncher9` | For Forge on MC 1.17+ |
+
+<Note>
+Stage 1 handles version conflicts by comparing the Essential versions from different sources and using the newest one.
+</Note>
+
+## Stage 2: Platform layer
+
+### Purpose
+
+Stage 2 provides platform-specific compatibility and abstractions, allowing the core Essential mod to work across different environments without platform-specific code.
+
+### Responsibilities
+
+- Platform-specific initialization
+- Class loading and transformation setup
+- Compatibility layer for different mod loaders
+- Preparing the environment for Essential core
+
+### File location
+
+In your `.minecraft` folder:
+```
+.minecraft/essential/loader/stage2.<Mod-Loader>_<MC-Version>.jar
+```
+
+Example: `stage2.forge_1-12-2.jar`
+
+In the repository (after building):
+```
+loader/stage2/<platform>/build/libs/
+```
+
+### Version independence
+
+<Warning>
+Stage 2 is NOT updated in lockstep with Essential versions. Its version may be older or newer than your Essential version.
+</Warning>
+
+Stage 2 files typically include a `.meta` file with version information:
+```
+.minecraft/essential/loader/stage2.<Mod-Loader>_<MC-Version>.jar.meta
+```
+
+This metadata file contains the actual version of Stage 2, which is independent of the Essential version.
+
+### Location note
+
+Although Stage 2 files are located in the `stage1` folder, this is because Stage 1 is responsible for loading Stage 2. The file itself is still Stage 2 of the loader architecture.
+
+## Stage 3: Essential core
+
+While not explicitly detailed in the available documentation, Stage 3 represents the actual Essential mod itself.
+
+### Purpose
+
+Stage 3 is the complete Essential mod that provides all user-facing features.
+
+### Responsibilities
+
+- Essential's core functionality
+- Minecraft GUI integration
+- Cosmetics, social features, and other Essential features
+- Interaction with Minecraft's code
+
+### Loading
+
+Stage 3 is loaded by Stage 2 after the platform environment has been properly prepared.
+
+## Building loader stages
+
+The Essential Loader stages are automatically built when building Essential:
+
+```bash
+# Build all of Essential (includes latest loader)
+./gradlew build
+```
+
+### Building specific stages
+
+To build a specific stage and platform:
+
+```bash
+./gradlew :loader:stage1:<platform>:build
+./gradlew :loader:stage2:<platform>:build
+```
+
+Replace `<platform>` with: `fabric`, `launchwrapper`, `modlauncher8`, or `modlauncher9`.
+
+### Output locations
+
+After building, find the jar files at:
+
+```
+loader/stage1/<platform>/build/libs/
+loader/stage2/<platform>/build/libs/
+```
+
+<Info>
+The latest Essential Loader version is included in the pinned jar files, so building Essential automatically builds the loader.
+</Info>
+
+## How stages work together
+
+### Loading sequence
+
+<Steps>
+  <Step title="Mod loader starts">
+    The mod loader (Fabric/Forge) loads the Essential mod file from `.minecraft/mods/`.
+  </Step>
+  
+  <Step title="Stage 1 extraction">
+    Stage 1 is extracted from the mod file (or loaded from cache) and executed.
+  </Step>
+  
+  <Step title="Version detection">
+    Stage 1 checks for multiple Essential sources and determines the newest version.
+  </Step>
+  
+  <Step title="Stage 2 loading">
+    Stage 1 extracts/loads Stage 2 for the appropriate platform.
+  </Step>
+  
+  <Step title="Platform setup">
+    Stage 2 sets up the platform-specific environment and compatibility layers.
+  </Step>
+  
+  <Step title="Essential loading">
+    Stage 2 loads the Essential core (Stage 3) with all features ready to use.
+  </Step>
+</Steps>
+
+### Version handling
+
+The multi-stage architecture allows for sophisticated version management:
+
+- **Stage 1**: Must match the container/mod file version
+- **Stage 2**: Can be updated independently, cached separately
+- **Stage 3**: Can be updated via in-game updates or container downloads
+
+## Platform abstraction
+
+The stages work together to abstract platform differences:
+
+### LaunchWrapper (MC 1.8.9, 1.12.2)
+- Uses older Forge loading mechanism
+- Stage 2 provides LaunchWrapper-specific compatibility
+
+### ModLauncher 8 (MC 1.16.5)
+- Newer Forge loading system
+- Stage 2 handles ModLauncher 8 specifics
+
+### ModLauncher 9 (MC 1.17+)
+- Latest Forge loading system
+- Stage 2 provides ModLauncher 9 compatibility
+
+### Fabric (all versions)
+- Different mod loading paradigm from Forge
+- Stage 2 provides Fabric-specific integration
+
+<Info>
+For comprehensive details about platforms, see `loader/docs/platforms.md` in the Essential Loader repository.
+</Info>
+
+## Debugging loader stages
+
+### Checking stage versions
+
+You can verify which stages are loaded:
+
+<Steps>
+  <Step title="Check Stage 1">
+    Look at `.minecraft/essential/loader/stage1.jar` modification date and size.
+  </Step>
+  
+  <Step title="Check Stage 2">
+    Examine the `.meta` file:
+    ```
+    .minecraft/essential/loader/stage2.<Mod-Loader>_<MC-Version>.jar.meta
+    ```
+  </Step>
+  
+  <Step title="Check logs">
+    Essential logs show which stages are being loaded and their versions during startup.
+  </Step>
+</Steps>
+
+### Common issues
+
+**Stage version mismatch**
+- Delete the `loader` folder and let Essential re-extract
+- Ensure you're using compatible Essential versions
+
+**Platform detection failure**
+- Verify you're using the correct mod file for your mod loader
+- Check that you have the right Minecraft version
+
+**Outdated Stage 2**
+- Stage 2 updates independently; this is usually fine
+- Only rebuild if experiencing compatibility issues
+
+## Advanced: Verifying stages
+
+To verify the authenticity of loader stages, see the [Verifying checksums](/guides/verifying-checksums) guide, specifically:
+
+- Stage 1: Section on "Files in the .minecraft/essential/loader folder"
+- Stage 2: Same section, with notes about `.meta` files
+
+<Note>
+Remember that Stage 2 versions are independent of Essential versions, so you may need to check the loader repository specifically for older Stage 2 versions.
+</Note>

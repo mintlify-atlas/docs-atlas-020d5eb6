@@ -1,0 +1,197 @@
+---
+title: MinecraftUtils API
+description: General Minecraft utility functions for common mod development tasks
+---
+
+The `MinecraftUtils` API provides a collection of general Minecraft-related utility functions to simplify common tasks in mod development.
+
+## Accessing MinecraftUtils
+
+Get an instance using dependency injection:
+
+<CodeGroup>
+```kotlin Kotlin
+import gg.essential.api.utils.MinecraftUtils
+import gg.essential.api.utils.get
+
+val minecraftUtils = get<MinecraftUtils>()
+```
+
+```java Java
+import gg.essential.api.utils.MinecraftUtils;
+import gg.essential.api.DI;
+
+MinecraftUtils minecraftUtils = DI.INSTANCE.get(MinecraftUtils.class);
+```
+</CodeGroup>
+
+## Sending chat messages
+
+### sendMessage
+
+Queue messages to be displayed in the player's chat, client-side only.
+
+<CodeGroup>
+```kotlin Kotlin
+// Simple message with [Essential] prefix
+minecraftUtils.sendMessage("Hello from Essential!")
+
+// Custom prefix
+minecraftUtils.sendMessage("§a[MyMod]", "Task completed successfully")
+```
+
+```java Java
+// Simple message with [Essential] prefix
+minecraftUtils.sendMessage("Hello from Essential!");
+
+// Custom prefix
+minecraftUtils.sendMessage("§a[MyMod]", "Task completed successfully");
+```
+</CodeGroup>
+
+<Note>
+The simple `sendMessage(String)` variant prefixes messages with `[Essential]` and should only be used for Essential-specific information. For custom messages, use the two-parameter version or `UTextComponent`.
+</Note>
+
+### sendChatMessageAndFormat
+
+Send messages with Minecraft's I18n translation and formatting.
+
+<CodeGroup>
+```kotlin Kotlin
+// Translate and format a message
+minecraftUtils.sendChatMessageAndFormat("chat.type.text", playerName, message)
+
+// With parameters
+minecraftUtils.sendChatMessageAndFormat(
+    "multiplayer.player.joined",
+    "Steve"
+)
+```
+
+```java Java
+// Translate and format a message
+minecraftUtils.sendChatMessageAndFormat("chat.type.text", playerName, message);
+
+// With parameters
+minecraftUtils.sendChatMessageAndFormat(
+    "multiplayer.player.joined",
+    "Steve"
+);
+```
+</CodeGroup>
+
+## Server detection
+
+### isHypixel
+
+Check if the player is currently connected to the Hypixel server.
+
+<CodeGroup>
+```kotlin Kotlin
+if (minecraftUtils.isHypixel()) {
+    println("Player is on Hypixel!")
+    // Enable Hypixel-specific features
+}
+```
+
+```java Java
+if (minecraftUtils.isHypixel()) {
+    System.out.println("Player is on Hypixel!");
+    // Enable Hypixel-specific features
+}
+```
+</CodeGroup>
+
+## Resource handling
+
+### getResourceImage
+
+Load a ResourceLocation into memory as a BufferedImage for use in dynamic textures.
+
+<CodeGroup>
+```kotlin Kotlin
+import net.minecraft.util.ResourceLocation
+
+val location = ResourceLocation("essential", "textures/gui/icon.png")
+val image = minecraftUtils.getResourceImage(location)
+
+if (image != null) {
+    // Use the BufferedImage
+    val width = image.width
+    val height = image.height
+} else {
+    println("Failed to load image")
+}
+```
+
+```java Java
+import net.minecraft.util.ResourceLocation;
+import java.awt.image.BufferedImage;
+
+ResourceLocation location = new ResourceLocation("essential", "textures/gui/icon.png");
+BufferedImage image = minecraftUtils.getResourceImage(location);
+
+if (image != null) {
+    // Use the BufferedImage
+    int width = image.getWidth();
+    int height = image.getHeight();
+} else {
+    System.out.println("Failed to load image");
+}
+```
+</CodeGroup>
+
+## Environment detection
+
+### isDevelopment
+
+Check if the game is running in a development environment rather than production.
+
+<CodeGroup>
+```kotlin Kotlin
+if (minecraftUtils.isDevelopment()) {
+    println("Running in development mode")
+    // Enable debug features
+}
+```
+
+```java Java
+if (minecraftUtils.isDevelopment()) {
+    System.out.println("Running in development mode");
+    // Enable debug features
+}
+```
+</CodeGroup>
+
+## API reference
+
+### Methods
+
+<ResponseField name="sendMessage" type="(message: String) -> Unit">
+  Sends a message prefixed with `[Essential]` to the player's chat.
+</ResponseField>
+
+<ResponseField name="sendMessage" type="(prefix: String, message: String) -> Unit">
+  Sends a formatted message with a custom prefix: `$prefix&r$message`.
+</ResponseField>
+
+<ResponseField name="sendChatMessageAndFormat" type="(message: String) -> Unit">
+  Sends a message translated and formatted using Minecraft's I18n utility.
+</ResponseField>
+
+<ResponseField name="sendChatMessageAndFormat" type="(message: String, vararg parameters: Any) -> Unit">
+  Sends a message translated with I18n using the given parameters.
+</ResponseField>
+
+<ResponseField name="isHypixel" type="() -> Boolean">
+  Returns whether the player is currently on the Hypixel server.
+</ResponseField>
+
+<ResponseField name="getResourceImage" type="(location: ResourceLocation) -> BufferedImage?">
+  Loads a ResourceLocation into memory as a BufferedImage. Returns null if loading fails.
+</ResponseField>
+
+<ResponseField name="isDevelopment" type="() -> Boolean">
+  Returns true if the game is launched in a development environment.
+</ResponseField>

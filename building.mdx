@@ -1,0 +1,443 @@
+---
+title: Building from source
+description: Developer guide for compiling Essential from the source code
+---
+
+## Prerequisites
+
+Before building Essential from source, ensure you have the required tools and dependencies installed.
+
+### Required Java versions
+
+<Warning>
+  You **must** have multiple Java Development Kits (JDKs) installed, even if you only want to build for a specific Minecraft version.
+</Warning>
+
+Install the following JDK versions from [Adoptium](https://adoptium.net/temurin/releases/):
+
+- Java 21 (or newer) - **Must be the default Java version**
+- Java 17
+- Java 16
+- Java 8
+
+<Steps>
+  <Step title="Install multiple JDK versions">
+    Download and install all four required Java versions from Adoptium. The build system needs access to all of them.
+  </Step>
+  
+  <Step title="Set Java 21 as default">
+    Configure your system to use Java 21 as the default Java version:
+    
+    <CodeGroup>
+    ```bash Linux/macOS
+    # Check current Java version
+    java -version
+    
+    # Set JAVA_HOME (adjust path to your Java 21 installation)
+    export JAVA_HOME=/path/to/java-21
+    export PATH=$JAVA_HOME/bin:$PATH
+    ```
+    
+    ```powershell Windows
+    # Check current Java version
+    java -version
+    
+    # Set JAVA_HOME in System Environment Variables
+    # Point to your Java 21 installation directory
+    ```
+    </CodeGroup>
+  </Step>
+  
+  <Step title="Verify installation">
+    Confirm Java 21 is active:
+    
+    ```bash
+    java -version
+    # Should output: openjdk version "21.x.x" or similar
+    ```
+  </Step>
+</Steps>
+
+### Additional tools
+
+<Note>
+  No additional tools like Gradle need to be installed manually. The Gradle wrapper included in the repository will automatically download the correct Gradle version.
+</Note>
+
+**Required:**
+- Git (for cloning the repository and managing submodules)
+
+**Recommended:**
+- 16GB+ RAM (configured in `gradle.properties` as `-Xmx16G`)
+- Fast internet connection (first build downloads many dependencies)
+
+## Cloning the repository
+
+<Warning>
+  Essential uses [git submodules](https://git-scm.com/book/en/v2/Git-Tools-Submodules). You must initialize them after cloning.
+</Warning>
+
+<Steps>
+  <Step title="Clone with submodules">
+    **Option A: Clone with recursive flag** (recommended)
+    ```bash
+    git clone --recursive https://github.com/EssentialGG/Essential.git
+    cd Essential
+    ```
+    
+    **Option B: Clone then initialize submodules**
+    ```bash
+    git clone https://github.com/EssentialGG/Essential.git
+    cd Essential
+    git submodule update --init --recursive
+    ```
+  </Step>
+  
+  <Step title="Update submodules after pulling">
+    Every time you pull new changes, update the submodules:
+    
+    ```bash
+    git pull
+    git submodule update --init --recursive
+    ```
+  </Step>
+</Steps>
+
+## Building Essential
+
+### Build all versions
+
+To build Essential for all Minecraft versions:
+
+<CodeGroup>
+```bash Linux/macOS
+./gradlew build
+```
+
+```powershell Windows
+.\gradlew.bat build
+```
+</CodeGroup>
+
+<Note>
+  Depending on your system and internet connection, the **first build may take 10 minutes to an hour**. Subsequent builds will be much faster thanks to Gradle's caching.
+</Note>
+
+### Build for specific version
+
+To build for a specific Minecraft version and mod loader:
+
+```bash
+# Format: ./gradlew :<version>-<loader>:build
+
+# Examples:
+./gradlew :1.12.2-forge:build
+./gradlew :1.20.4-fabric:build
+./gradlew :1.21.1-neoforge:build
+```
+
+<Warning>
+  Building any version other than the main version (currently 1.12.2) will require all versions between it and the main version to be set up regardless. The time saved over building all versions may vary.
+</Warning>
+
+### Output files
+
+Once the build completes, find the compiled jars in:
+
+```
+versions/<MC-Version>/build/libs/
+```
+
+You'll find two types of jar files:
+
+1. **`pinned_*.jar`** - Mod file for Modrinth/CurseForge
+   - Contains a specific version of Essential
+   - Larger file size
+   - Suitable for modpacks
+
+2. **`Essential *.jar`** - Main mod file
+   - Downloaded by in-game updater
+   - Used by third-party mods embedding Essential Loader
+   - Used by container mods and the Essential Installer
+
+## Building Essential Loader
+
+The Essential Loader is automatically built when building the main mod (included in `pinned_` jars).
+
+The loader is split into three stages, each with platform-specific variants:
+
+**Platforms:**
+- `fabric` - All Fabric versions
+- `launchwrapper` - Forge on Minecraft 1.8.9 and 1.12.2
+- `modlauncher8` - Forge on Minecraft 1.16.5
+- `modlauncher9` - Forge on Minecraft 1.17+
+
+**Output location:**
+```
+loader/<stage>/<platform>/build/libs/
+```
+
+<Note>
+  For technical details about loader stages, see `loader/docs/stages.md` in the repository. For platform details, see `loader/docs/platforms.md`.
+</Note>
+
+## Building Essential Container
+
+The Essential Container is a thin mod that downloads Essential on first launch.
+
+<Steps>
+  <Step title="Choose your platform">
+    Select the appropriate platform for your target:
+    - `fabric` - All Fabric versions
+    - `launchwrapper` - Forge 1.8.9 and 1.12.2
+    - `modlauncher8` - Forge 1.16.5
+    - `modlauncher9` - Forge 1.17+, NeoForge
+  </Step>
+  
+  <Step title="Build the container">
+    ```bash
+    # Format: ./gradlew :loader:container:<platform>:build
+    
+    # Examples:
+    ./gradlew :loader:container:fabric:build
+    ./gradlew :loader:container:launchwrapper:build
+    ./gradlew :loader:container:modlauncher9:build
+    ```
+  </Step>
+  
+  <Step title="Locate the output">
+    Find the container jar in:
+    ```
+    loader/container/<platform>/build/libs/
+    ```
+  </Step>
+</Steps>
+
+<Note>
+  Container mods are small (< 1 MB) and download the latest Essential version at runtime, while pinned mods include a specific Essential version.
+</Note>
+
+## Build configuration
+
+The build is configured in several key files:
+
+### gradle.properties
+
+Key build properties:
+
+```properties
+version=1.3.10.6
+minecraftVersion=11202
+org.gradle.jvmargs=-Xmx16G
+org.gradle.parallel=true
+org.gradle.caching=true
+```
+
+### build.gradle.kts
+
+Main build script with:
+- Dependency management
+- Kotlin version constraints
+- Platform-specific configurations
+- Relocation rules for bundled libraries
+
+### settings.gradle.kts
+
+Defines all Minecraft version projects:
+
+```kotlin
+listOf(
+    "1.8.9-forge",
+    "1.12.2-forge",
+    "1.16.2-forge",
+    "1.16.2-fabric",
+    // ... and many more
+    "1.21.11-fabric",
+)
+```
+
+## Gradle wrapper
+
+Essential includes the [Gradle wrapper](https://docs.gradle.org/current/userguide/gradle_wrapper.html) for reproducible builds:
+
+- **Linux/macOS**: `./gradlew`
+- **Windows**: `gradlew.bat`
+
+<Warning>
+  **Always use the wrapper scripts** instead of a local Gradle installation. This ensures you use the exact same Gradle version as the official builds and guarantees bit-for-bit identical output.
+</Warning>
+
+## Continuous Integration (CI)
+
+Every Essential release is built by CI twice:
+
+<Steps>
+  <Step title="Internal CI build">
+    Built on ModCore's internal, self-hosted CI system:
+    - Faster build times
+    - Runs integration tests
+    - Uploads jars to infrastructure
+    - Publishes source code to GitHub
+  </Step>
+  
+  <Step title="Public GitHub Actions build">
+    Built directly from public source on GitHub-provided runners:
+    - Ensures published source matches released jars
+    - Builds from scratch in clean environment
+    - Verifies bit-for-bit identical output
+    - Publishes checksums for verification
+  </Step>
+</Steps>
+
+## Verifying checksums
+
+You can verify the authenticity of Essential files:
+
+<Steps>
+  <Step title="Build locally or get checksums">
+    **Option A**: Build Essential yourself following the steps above
+    
+    **Option B**: Find the GitHub Actions run and download the `checksums` artifact or view the `Generate checksums` log
+  </Step>
+  
+  <Step title="Identify file type">
+    Determine which file you're verifying:
+    
+    - **`.minecraft/mods/`**: Container (< 1 MB) or pinned mod (larger)
+    - **`.minecraft/essential/`**: Main Essential jar
+    - **`.minecraft/essential/loader/`**: Loader stage files
+    - **`.minecraft/essential/libraries/`**: Extracted dependencies
+  </Step>
+  
+  <Step title="Compare checksums">
+    Use a SHA-256 checksum tool:
+    
+    <CodeGroup>
+    ```bash Linux/macOS
+    sha256sum Essential\ \(Fabric_1.20.4\).jar
+    ```
+    
+    ```powershell Windows
+    certutil -hashfile "Essential (Fabric_1.20.4).jar" SHA256
+    ```
+    </CodeGroup>
+    
+    Compare the output to the checksum from your build or the GitHub Actions log.
+  </Step>
+</Steps>
+
+<Note>
+  Some Essential versions are compatible with multiple Minecraft versions. See `versions/aliases.txt` for the exact mapping.
+</Note>
+
+## Common build issues
+
+<AccordionGroup>
+  <Accordion title="Java version errors">
+    **Error**: Build fails with Java version errors
+    
+    **Solution**: Ensure Java 21 is your default version:
+    ```bash
+    java -version  # Should show Java 21
+    ```
+    
+    Also verify all required JDK versions (8, 16, 17, 21) are installed.
+  </Accordion>
+  
+  <Accordion title="Out of memory errors">
+    **Error**: `java.lang.OutOfMemoryError: Java heap space`
+    
+    **Solution**: The build is configured for 16GB RAM in `gradle.properties`. If you have less RAM, reduce the value:
+    ```properties
+    org.gradle.jvmargs=-Xmx8G
+    ```
+  </Accordion>
+  
+  <Accordion title="Submodule errors">
+    **Error**: Missing files or build failures related to the loader
+    
+    **Solution**: Update git submodules:
+    ```bash
+    git submodule update --init --recursive
+    ```
+  </Accordion>
+  
+  <Accordion title="Gradle daemon issues">
+    **Error**: Build hangs or fails mysteriously
+    
+    **Solution**: Stop all Gradle daemons and retry:
+    ```bash
+    ./gradlew --stop
+    ./gradlew build
+    ```
+  </Accordion>
+  
+  <Accordion title="First build takes too long">
+    This is expected. The first build:
+    - Downloads all Minecraft versions
+    - Downloads all dependencies
+    - Sets up development environments
+    - Compiles for all platforms
+    
+    Subsequent builds use Gradle's cache and complete much faster.
+  </Accordion>
+</AccordionGroup>
+
+## Development environment
+
+To set up Essential for development in your IDE:
+
+<Steps>
+  <Step title="Import the project">
+    Import the Essential directory as a Gradle project in your IDE (IntelliJ IDEA or Eclipse).
+  </Step>
+  
+  <Step title="Wait for Gradle sync">
+    Let your IDE sync the Gradle project. This may take several minutes on first import.
+  </Step>
+  
+  <Step title="Run configurations">
+    Essential includes pre-configured run configurations. Look for "Minecraft Client" run configurations for each version.
+    
+    Note: Essential is client-side only, so server run configs are disabled.
+  </Step>
+</Steps>
+
+## License restrictions
+
+<Warning>
+  Essential is **source-available** but NOT open source. You can build and verify the code, but you **cannot**:
+  
+  - Use any code or assets (even for personal use)
+  - Incorporate the source code in other projects
+  - Use the code as a reference for new projects
+  - Modify or alter the source code
+  - Distribute compiled or modified versions
+  
+  See the full [LICENSE](https://github.com/EssentialGG/Essential/blob/main/LICENSE) for details.
+</Warning>
+
+## Getting help
+
+For build issues or development questions:
+
+- Join the [Essential Discord](https://essential.gg/discord) and use the dedicated support channels
+- Check existing GitHub issues for similar problems
+- Review the loader documentation in `loader/docs/`
+
+## Additional resources
+
+<CardGroup cols={2}>
+  <Card title="Loader stages" icon="layer-group">
+    See `loader/docs/stages.md` for technical details about the three-stage loader architecture
+  </Card>
+  <Card title="Loader platforms" icon="cube">
+    See `loader/docs/platforms.md` for details about different mod loader platforms
+  </Card>
+  <Card title="Container vs Pinned" icon="box">
+    See `loader/docs/container-mods.md` for technical details about container and pinned mod variants
+  </Card>
+  <Card title="Build logic" icon="code">
+    See `build-logic/src/main/kotlin/essential/pinned-jar.gradle.kts` for how pinned jars are generated
+  </Card>
+</CardGroup>

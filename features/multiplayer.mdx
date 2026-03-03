@@ -1,0 +1,520 @@
+---
+title: Multiplayer hosting
+description: Host your singleplayer worlds and invite friends instantly with Essential's built-in player hosting system (SPS/Invite Friends)
+icon: users
+---
+
+Essential's player hosting feature (also known as SPS or Invite Friends) allows you to open your singleplayer worlds to friends without needing to set up a dedicated server.
+
+## Quick overview
+
+<CardGroup cols={2}>
+  <Card title="Instant hosting" icon="bolt">
+    Start hosting your world with one click from the main menu or in-game
+  </Card>
+  
+  <Card title="World settings" icon="sliders">
+    Manage gamerules, permissions, PvP, and other settings per world
+  </Card>
+  
+  <Card title="Voice chat" icon="microphone">
+    Built-in support for Plasmo Voice and Simple Voice Chat mods
+  </Card>
+  
+  <Card title="Resource packs" icon="box">
+    Share your resource packs with joining players automatically
+  </Card>
+</CardGroup>
+
+## Getting started
+
+<Tabs>
+  <Tab title="Quick start">
+    ### Starting a hosted session
+    
+    <Steps>
+      <Step title="Open world or main menu">
+        You can host from the main menu or while playing
+      </Step>
+      
+      <Step title="Click 'Host World' button">
+        - **Main menu**: "Host World" button for quick access
+        - **In-game**: Open pause menu and select host option
+      </Step>
+      
+      <Step title="Configure settings">
+        Choose world settings like gamerules and permissions (optional)
+      </Step>
+      
+      <Step title="Invite friends">
+        Select friends to invite from your friends list
+      </Step>
+    </Steps>
+    
+    <Info>
+      All hosted sessions are invite-only for privacy and security. The "friends" privacy setting has been removed.
+    </Info>
+  </Tab>
+  
+  <Tab title="Main menu hosting">
+    ### Host from main menu
+    
+    The main menu provides a dedicated "Host World" button for quick access:
+    
+    **Features:**
+    - Quick world selection
+    - Pre-configure settings before loading
+    - Invite friends before world loads
+    - View world information
+    
+    **Benefits:**
+    - Faster hosting setup
+    - No need to load world first
+    - Configure everything in advance
+    - Streamlined friend invites
+  </Tab>
+  
+  <Tab title="In-game hosting">
+    ### Host while playing
+    
+    You can also start hosting while already in a world:
+    
+    1. Open pause menu
+    2. Select "Invite Friends" or "Host World" option
+    3. Choose friends to invite
+    4. Friends can join immediately
+    
+    **Use cases:**
+    - Already playing and want to invite friends
+    - Change hosting settings mid-session
+    - Invite additional friends later
+    - Quick friend access
+  </Tab>
+</Tabs>
+
+## World settings
+
+Essential provides comprehensive world settings for hosted sessions.
+
+### Settings screen
+
+<AccordionGroup>
+  <Accordion title="Gamerules" icon="list">
+    Control world gamerules for your session:
+    
+    - **PvP toggle** - Enable/disable player combat
+    - **Mob spawning** - Control hostile/peaceful mobs
+    - **Weather** - Manage weather cycle
+    - **Time** - Day/night cycle settings
+    - **Keep inventory** - Items on death
+    - **Fire spread** - Control fire mechanics
+    - All standard Minecraft gamerules
+    
+    <Note>
+      Game rule text now wraps correctly on the World Host Settings screen for better readability.
+    </Note>
+  </Accordion>
+  
+  <Accordion title="Player permissions" icon="user-shield">
+    Manage what players can do:
+    
+    - **Cheats setting**:
+      - **Enabled**: Host gets OP and can choose who to OP
+      - **Disabled**: No one gets OP (including host)
+    - **Building permissions** - Allow/deny building
+    - **Inventory access** - Control inventory interaction
+    - **Command permissions** - Who can use commands
+    
+    <Info>
+      The "Cheats" option behavior was improved to give hosts better control over operator permissions.
+    </Info>
+  </Accordion>
+  
+  <Accordion title="World persistence" icon="floppy-disk">
+    Settings are remembered:
+    
+    - **Per-world memory** - Last used settings saved for each world
+    - **Quick rehost** - Reuse previous configuration
+    - **Default templates** - Set default settings
+    - **Easy adjustments** - Modify settings between sessions
+    
+    <Note>
+      The "Cheats" option now correctly reflects the saved value when sharing a singleplayer world for the first time.
+    </Note>
+  </Accordion>
+</AccordionGroup>
+
+### Host commands
+
+Hosts have access to special commands:
+
+```bash
+# Invite a player to your world
+/essential invite <player>
+
+# Kick a player from your world
+/essential kick <player>
+
+# Grant operator status to a player
+/essential op <player>
+
+# Remove operator status from a player
+/essential deop <player>
+```
+
+<Info>
+  Commands are available when cheats are enabled for the hosted world.
+</Info>
+
+## Connection system
+
+### Connection quality
+
+Essential uses advanced networking for optimal connections:
+
+**Connection methods:**
+1. **Direct connection** - Best performance, lowest latency
+2. **Regional proxies** - Used when direct connection isn't possible
+3. **Fallback routing** - Ensures connectivity in all scenarios
+
+**Improvements:**
+- Reduced latency for proxy connections
+- Better connection quality worldwide
+- Fewer timeout issues
+- Improved stability
+
+<Info>
+  Players are no longer kicked from World Hosting when the host temporarily loses connection to Essential infrastructure.
+</Info>
+
+### Joining hosted worlds
+
+**Players can join via:**
+- Direct invite notifications
+- Social Menu world invites
+- Discord invites (with integration)
+- Friends list (see active hosted worlds)
+
+**Join process:**
+1. Receive invite notification
+2. Click "Join" button
+3. Automatic connection handling
+4. Load into host's world
+
+## Resource pack sharing
+
+### How it works
+
+<Tabs>
+  <Tab title="Enabling">
+    ### Share your resource pack
+    
+    When hosting a world:
+    
+    1. Enable "Share Resource Pack" in world settings
+    2. Essential packages your active resource pack
+    3. Joining players automatically download it
+    4. Pack applies when they join your world
+    
+    <Info>
+      Resource pack sharing now supports outdated resource packs, ensuring compatibility.
+    </Info>
+  </Tab>
+  
+  <Tab title="Features">
+    ### Resource pack features
+    
+    - **Automatic transfer** - No manual download needed
+    - **Outdated pack support** - Works with older packs
+    - **Compression** - Optimized transfer size
+    - **No zipping when disabled** - Saves resources
+    - **Seamless application** - Auto-applies on join
+    
+    <Note>
+      Host resource packs are no longer unnecessarily zipped when "Share resource pack" is disabled.
+    </Note>
+  </Tab>
+  
+  <Tab title="Troubleshooting">
+    ### Common issues
+    
+    <Accordion title="Game stuck after hosting with resource pack">
+      **Problem:** Game freezes when opening singleplayer world after hosting with shared resource pack
+      
+      **Solution:** This has been fixed in recent Essential versions. Update to the latest version.
+    </Accordion>
+    
+    <Accordion title="Resource pack not transferring">
+      **Solutions:**
+      - Verify "Share Resource Pack" is enabled
+      - Check resource pack size (very large packs may timeout)
+      - Ensure both players have stable internet
+      - Try disabling and re-enabling sharing
+    </Accordion>
+  </Tab>
+</Tabs>
+
+## Voice chat integration
+
+Essential integrates with popular voice chat mods for immersive communication.
+
+### Supported mods
+
+<CardGroup cols={2}>
+  <Card title="Plasmo Voice" icon="microphone">
+    Full support for Plasmo Voice mod including version 2.x
+  </Card>
+  
+  <Card title="Simple Voice Chat" icon="headset">
+    Complete integration with Simple Voice Chat mod
+  </Card>
+</CardGroup>
+
+### Features
+
+- **Automatic detection** - Works when mods are installed
+- **Proximity chat** - Distance-based voice communication
+- **Group channels** - Private voice channels
+- **Spatial audio** - 3D positional audio
+- **Quality settings** - Adjustable audio quality
+
+<Note>
+  Plasmo Voice 2.x compatibility issues with World Hosting have been fixed.
+</Note>
+
+## Social integration
+
+### Friends list integration
+
+<AccordionGroup>
+  <Accordion title="Friend indicators" icon="circle-dot">
+    See what your friends are doing:
+    
+    - **Active worlds** - Which friends are hosting
+    - **Server indicators** - Friends on servers
+    - **Multiplayer menu** - Enhanced server entries
+    - **Quick join** - One-click join from friends list
+    
+    <Info>
+      Friend indicators on server entries and hosted worlds in the Multiplayer menu have been improved.
+    </Info>
+  </Accordion>
+  
+  <Accordion title="Invite system" icon="envelope">
+    Multiple ways to invite friends:
+    
+    - **Friend selection modal** - Updated design for better UX
+    - **Social Menu invites** - Send invites via chat
+    - **Direct invites** - Quick invite from friends list
+    - **Group invites** - Invite entire groups at once
+  </Accordion>
+  
+  <Accordion title="World/server invites" icon="paper-plane">
+    Share worlds easily:
+    
+    - **Updated invite buttons** - Better design in Social Menu
+    - **Join buttons** - Quick join from messages
+    - **Invite messages** - Rich invite formatting
+    - **Status updates** - See when friends join/leave
+  </Accordion>
+</AccordionGroup>
+
+### Discord integration
+
+<Tabs>
+  <Tab title="Activity status">
+    ### Discord rich presence
+    
+    Essential displays in Discord activity status:
+    
+    - **Currently playing** - Shows world/server info
+    - **Hosting status** - Indicates when hosting world
+    - **Player count** - Number of players in session
+    - **Elapsed time** - How long you've been playing
+    
+    <Info>
+      Enable Discord integration in Essential settings to show activity status.
+    </Info>
+  </Tab>
+  
+  <Tab title="Discord invites">
+    ### Invite via Discord
+    
+    Send invites directly through Discord:
+    
+    1. Open Discord while hosting a world
+    2. Click **+** button next to message input
+    3. Select "Invite to Minecraft"
+    4. Choose friends to invite
+    5. They receive invite in Discord and Essential
+    
+    **Benefits:**
+    - Reach friends not in-game
+    - Cross-platform invites
+    - Rich invite formatting
+    - Notification system
+  </Tab>
+  
+  <Tab title="Discord cape">
+    ### Free Discord cape
+    
+    Unlock a free cape by joining the Essential Discord:
+    
+    - Join the official Essential Discord server
+    - Complete verification process
+    - Cape automatically unlocks
+    - Permanent unlock in wardrobe
+    
+    Access the cape in the Wardrobe → Capes section.
+  </Tab>
+</Tabs>
+
+## Privacy & safety
+
+### Privacy settings
+
+<AccordionGroup>
+  <Accordion title="Invite-only sessions" icon="lock">
+    All hosted worlds are invite-only:
+    
+    - **No public hosting** - Only invited friends can join
+    - **Explicit invites** - You choose who to invite
+    - **Kick system** - Remove unwanted players
+    - **Session control** - Full control over your world
+    
+    <Note>
+      The "friends" privacy setting was removed. All sessions are now invite-only for better privacy.
+    </Note>
+  </Accordion>
+  
+  <Accordion title="Server-specific privacy" icon="shield">
+    Control privacy per server:
+    
+    - **Individual settings** - Different privacy for each server
+    - **Activity visibility** - Control who sees your server
+    - **Friend visibility** - Manage friend status display
+    - **Custom configuration** - Tailor to your needs
+  </Accordion>
+  
+  <Accordion title="Server information sharing" icon="circle-info">
+    Control what friends can see:
+    
+    - **Server visibility** - Toggle server name display
+    - **Activity status** - Show/hide what you're playing
+    - **Join permissions** - Who can request to join
+    - **Dialog confirmation** - Confirm sharing preferences
+    
+    <Info>
+      The "Show friends what server you play on" dialog now only appears once, even if the screen is resized.
+    </Info>
+  </Accordion>
+</AccordionGroup>
+
+## Troubleshooting
+
+<Accordion title="Players timing out">
+  **Solutions:**
+  - This issue has been largely resolved with connection improvements
+  - Ensure all players have stable internet
+  - Try hosting from a different network if issues persist
+  - Check firewall settings aren't blocking connections
+</Accordion>
+
+<Accordion title="Connection quality issues">
+  **Improvements made:**
+  - Regional proxies now provide better quality
+  - Reduced latency in all connection modes
+  - Better fallback routing
+  
+  **If still experiencing issues:**
+  - Check network stability
+  - Close bandwidth-heavy applications
+  - Try direct connection if possible
+</Accordion>
+
+<Accordion title="Voice chat not working">
+  **Plasmo Voice:**
+  - Update to Essential latest version (2.x support fixed)
+  - Verify Plasmo Voice is installed correctly
+  - Check voice chat keybinds
+  
+  **Simple Voice Chat:**
+  - Ensure mod is properly installed
+  - Verify audio permissions
+  - Check voice settings in-game
+</Accordion>
+
+<Accordion title="Can't create new world from host modal">
+  **Feature:**
+  A "Create New World" button has been added to the host world modal for convenience.
+  
+  If not visible, ensure you're running the latest Essential version.
+</Accordion>
+
+## Compatibility
+
+### Mod compatibility
+
+<Check>**Compatible with:**</Check>
+- Plasmo Voice (including 2.x)
+- Simple Voice Chat
+- Not Enough Gamerules (fixed)
+- Most gameplay mods
+- Resource pack mods
+
+<Warning>**Platform compatibility:**</Warning>
+- **Vivecraft**: World Hosting, chat, and other features now work correctly
+- **FreeBSD**: Full support added
+
+### Server compatibility
+
+<Info>
+  Essential's online indicator now works correctly on most servers. If it doesn't appear, check server permissions.
+</Info>
+
+## Best practices
+
+<CardGroup cols={2}>
+  <Card title="Hosting tips" icon="server">
+    - Configure world settings before inviting friends
+    - Use saved settings for quick rehosting
+    - Enable resource pack sharing for consistent experience
+    - Set up voice chat mods for better communication
+  </Card>
+  
+  <Card title="Management" icon="users-gear">
+    - Use kick commands to remove disruptive players
+    - Grant OP status only to trusted friends
+    - Review gamerules before starting session
+    - Monitor connection quality of players
+  </Card>
+</CardGroup>
+
+## Advanced features
+
+### Create new world
+
+The host world modal includes a "Create New World" button:
+- Quickly create worlds to host
+- Configure settings during creation
+- Invite friends to brand new worlds
+- Streamlined workflow
+
+### Session management
+
+- **View active players** - See who's currently in your world
+- **Kick players** - Remove players via command or UI
+- **Transfer OP** - Grant operator status to others
+- **Save and quit** - Properly close hosted sessions
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Social features" icon="comments" href="/features/ui-improvements">
+    Learn about the Social Menu and messaging features
+  </Card>
+  
+  <Card title="Discord setup" icon="discord" href="/features/ui-improvements">
+    Set up Discord integration for enhanced features
+  </Card>
+</CardGroup>

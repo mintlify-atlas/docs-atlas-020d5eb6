@@ -1,0 +1,426 @@
+---
+title: Multithreading utilities
+description: Run tasks asynchronously with thread pools and scheduled executors
+---
+
+The `Multithreading` utility provides easy access to thread pools and scheduled executors for running tasks asynchronously.
+
+## Accessing Multithreading
+
+<CodeGroup>
+```kotlin Kotlin
+import gg.essential.api.utils.Multithreading
+
+// Access directly as an object
+Multithreading.runAsync {
+    // Your async code
+}
+```
+
+```java Java
+import gg.essential.api.utils.Multithreading;
+
+// Access static methods
+Multithreading.runAsync(() -> {
+    // Your async code
+});
+```
+</CodeGroup>
+
+## Running async tasks
+
+### runAsync
+
+Execute a task asynchronously on the thread pool.
+
+<CodeGroup>
+```kotlin Kotlin
+Multithreading.runAsync {
+    // Perform expensive operation off the main thread
+    val data = fetchDataFromAPI()
+    processData(data)
+    
+    println("Task completed on thread: ${Thread.currentThread().name}")
+}
+```
+
+```java Java
+Multithreading.runAsync(() -> {
+    // Perform expensive operation off the main thread
+    Data data = fetchDataFromAPI();
+    processData(data);
+    
+    System.out.println("Task completed on thread: " + Thread.currentThread().getName());
+});
+```
+</CodeGroup>
+
+### submit
+
+Submit a task and get a Future to track its completion.
+
+<CodeGroup>
+```kotlin Kotlin
+import java.util.concurrent.Future
+
+val future: Future<*> = Multithreading.submit {
+    // Long-running task
+    Thread.sleep(5000)
+    println("Task finished")
+}
+
+// Check if completed
+if (future.isDone) {
+    println("Task is done")
+}
+
+// Cancel if needed
+future.cancel(true)
+```
+
+```java Java
+import java.util.concurrent.Future;
+
+Future<?> future = Multithreading.submit(() -> {
+    // Long-running task
+    try {
+        Thread.sleep(5000);
+    } catch (InterruptedException e) {
+        e.printStackTrace();
+    }
+    System.out.println("Task finished");
+});
+
+// Check if completed
+if (future.isDone()) {
+    System.out.println("Task is done");
+}
+
+// Cancel if needed
+future.cancel(true);
+```
+</CodeGroup>
+
+## Scheduled tasks
+
+### schedule (one-time)
+
+Schedule a task to run once after a delay.
+
+<CodeGroup>
+```kotlin Kotlin
+import java.util.concurrent.TimeUnit
+
+// Run after 5 seconds
+Multithreading.schedule(
+    Runnable {
+        println("This runs after 5 seconds")
+    },
+    5,
+    TimeUnit.SECONDS
+)
+```
+
+```java Java
+import java.util.concurrent.TimeUnit;
+
+// Run after 5 seconds
+Multithreading.schedule(
+    () -> System.out.println("This runs after 5 seconds"),
+    5,
+    TimeUnit.SECONDS
+);
+```
+</CodeGroup>
+
+### schedule (repeating)
+
+Schedule a task to run repeatedly at fixed intervals.
+
+<CodeGroup>
+```kotlin Kotlin
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.ScheduledFuture
+
+// Run every 10 seconds, starting after 2 seconds
+val scheduledTask: ScheduledFuture<*> = Multithreading.schedule(
+    Runnable {
+        println("This runs every 10 seconds")
+    },
+    2,  // Initial delay
+    10, // Period
+    TimeUnit.SECONDS
+)
+
+// Cancel the scheduled task when needed
+scheduledTask.cancel(false)
+```
+
+```java Java
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.ScheduledFuture;
+
+// Run every 10 seconds, starting after 2 seconds
+ScheduledFuture<?> scheduledTask = Multithreading.schedule(
+    () -> System.out.println("This runs every 10 seconds"),
+    2,  // Initial delay
+    10, // Period
+    TimeUnit.SECONDS
+);
+
+// Cancel the scheduled task when needed
+scheduledTask.cancel(false);
+```
+</CodeGroup>
+
+## Thread pools
+
+### pool
+
+Access the main thread pool executor for custom operations.
+
+<CodeGroup>
+```kotlin Kotlin
+import java.util.concurrent.ThreadPoolExecutor
+
+val pool: ThreadPoolExecutor = Multithreading.pool
+
+// Check pool status
+println("Active threads: ${pool.activeCount}")
+println("Queue size: ${pool.queue.size}")
+println("Completed tasks: ${pool.completedTaskCount}")
+```
+
+```java Java
+import java.util.concurrent.ThreadPoolExecutor;
+
+ThreadPoolExecutor pool = Multithreading.getPool();
+
+// Check pool status
+System.out.println("Active threads: " + pool.getActiveCount());
+System.out.println("Queue size: " + pool.getQueue().size());
+System.out.println("Completed tasks: " + pool.getCompletedTaskCount());
+```
+</CodeGroup>
+
+### scheduledPool
+
+Access the scheduled executor service for custom scheduled operations.
+
+<CodeGroup>
+```kotlin Kotlin
+import java.util.concurrent.ScheduledExecutorService
+import java.util.concurrent.TimeUnit
+
+val scheduledPool: ScheduledExecutorService = Multithreading.scheduledPool
+
+// Use for custom scheduling
+scheduledPool.scheduleWithFixedDelay(
+    { println("Fixed delay task") },
+    0,
+    5,
+    TimeUnit.SECONDS
+)
+```
+
+```java Java
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
+ScheduledExecutorService scheduledPool = Multithreading.getScheduledPool();
+
+// Use for custom scheduling
+scheduledPool.scheduleWithFixedDelay(
+    () -> System.out.println("Fixed delay task"),
+    0,
+    5,
+    TimeUnit.SECONDS
+);
+```
+</CodeGroup>
+
+## Practical examples
+
+### Background data fetching
+
+<CodeGroup>
+```kotlin Kotlin
+fun loadPlayerData(uuid: UUID) {
+    Multithreading.runAsync {
+        try {
+            // Fetch data on background thread
+            val data = fetchFromAPI(uuid)
+            
+            // Switch back to main thread to update UI
+            Minecraft.getMinecraft().addScheduledTask {
+                updatePlayerDisplay(data)
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+}
+```
+
+```java Java
+public void loadPlayerData(UUID uuid) {
+    Multithreading.runAsync(() -> {
+        try {
+            // Fetch data on background thread
+            PlayerData data = fetchFromAPI(uuid);
+            
+            // Switch back to main thread to update UI
+            Minecraft.getMinecraft().addScheduledTask(() -> {
+                updatePlayerDisplay(data);
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    });
+}
+```
+</CodeGroup>
+
+### Periodic health check
+
+<CodeGroup>
+```kotlin Kotlin
+import java.util.concurrent.TimeUnit
+
+class ServerHealthMonitor {
+    private var healthCheck: ScheduledFuture<*>? = null
+    
+    fun start() {
+        healthCheck = Multithreading.schedule(
+            Runnable {
+                checkServerHealth()
+            },
+            0,  // Start immediately
+            30, // Check every 30 seconds
+            TimeUnit.SECONDS
+        )
+    }
+    
+    fun stop() {
+        healthCheck?.cancel(false)
+    }
+    
+    private fun checkServerHealth() {
+        // Perform health check
+        println("Server health: OK")
+    }
+}
+```
+
+```java Java
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.ScheduledFuture;
+
+public class ServerHealthMonitor {
+    private ScheduledFuture<?> healthCheck;
+    
+    public void start() {
+        healthCheck = Multithreading.schedule(
+            this::checkServerHealth,
+            0,  // Start immediately
+            30, // Check every 30 seconds
+            TimeUnit.SECONDS
+        );
+    }
+    
+    public void stop() {
+        if (healthCheck != null) {
+            healthCheck.cancel(false);
+        }
+    }
+    
+    private void checkServerHealth() {
+        // Perform health check
+        System.out.println("Server health: OK");
+    }
+}
+```
+</CodeGroup>
+
+### Delayed task execution
+
+<CodeGroup>
+```kotlin Kotlin
+import java.util.concurrent.TimeUnit
+
+fun showDelayedMessage(message: String, delaySeconds: Long) {
+    Multithreading.schedule(
+        Runnable {
+            println(message)
+        },
+        delaySeconds,
+        TimeUnit.SECONDS
+    )
+}
+
+// Usage
+showDelayedMessage("This appears after 10 seconds", 10)
+```
+
+```java Java
+import java.util.concurrent.TimeUnit;
+
+public void showDelayedMessage(String message, long delaySeconds) {
+    Multithreading.schedule(
+        () -> System.out.println(message),
+        delaySeconds,
+        TimeUnit.SECONDS
+    );
+}
+
+// Usage
+showDelayedMessage("This appears after 10 seconds", 10);
+```
+</CodeGroup>
+
+## Thread pool configuration
+
+The default thread pool is configured with:
+
+- **Core pool size**: 10 threads
+- **Maximum pool size**: 30 threads
+- **Keep-alive time**: 0 seconds
+- **Queue**: LinkedBlockingQueue (unbounded)
+- **Thread naming**: "Thread 1", "Thread 2", etc.
+
+The scheduled pool uses:
+
+- **Pool size**: 10 threads
+- **Thread naming**: "Thread 1", "Thread 2", etc.
+
+## API reference
+
+### Methods
+
+<ResponseField name="runAsync" type="(runnable: Runnable) -> Unit">
+  Execute a task asynchronously on the thread pool.
+</ResponseField>
+
+<ResponseField name="submit" type="(runnable: Runnable) -> Future<*>">
+  Submit a task and return a Future to track its execution.
+</ResponseField>
+
+<ResponseField name="schedule" type="(r: Runnable, delay: Long, unit: TimeUnit) -> ScheduledFuture<*>">
+  Schedule a one-time task to run after a delay.
+</ResponseField>
+
+<ResponseField name="schedule" type="(r: Runnable, initialDelay: Long, delay: Long, unit: TimeUnit) -> ScheduledFuture<*>">
+  Schedule a repeating task with fixed-rate execution.
+</ResponseField>
+
+<ResponseField name="pool" type="ThreadPoolExecutor">
+  The main thread pool executor for general async tasks.
+</ResponseField>
+
+<ResponseField name="scheduledPool" type="ScheduledExecutorService">
+  The scheduled executor service for delayed and periodic tasks.
+</ResponseField>
+
+<Note>
+All async tasks run on background threads. To update UI or interact with Minecraft state, use `Minecraft.getMinecraft().addScheduledTask()` to switch back to the main thread.
+</Note>

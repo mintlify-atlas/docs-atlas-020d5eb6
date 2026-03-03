@@ -1,0 +1,164 @@
+---
+title: 'Frequently asked questions'
+description: 'Common questions about Essential mod development and source code'
+---
+
+## General questions
+
+<AccordionGroup>
+  <Accordion title="What is Essential?">
+    Essential is a quality of life mod that boosts Minecraft Java Edition to the next level. It provides various features and enhancements to improve the Minecraft gameplay experience.
+    
+    The source code is made publicly available to demonstrate Essential's commitment to transparency with users and the broader community.
+  </Accordion>
+
+  <Accordion title="Why is the source code available if I can't modify it?">
+    The source code is available under a source-available license (not open source) to:
+    - Allow users to audit the code for security and transparency
+    - Enable verification that official releases match the published source code
+    - Build trust with the community by demonstrating what the mod does
+    - Let users confirm authenticity of distributed binaries
+    
+    While you can view and compile the code, you cannot modify, use, or distribute it.
+  </Accordion>
+
+  <Accordion title="Can I use Essential's code in my own mod?">
+    No. The Essential Mod license does not permit you to:
+    - Use any code or assets from Essential, even for personal use
+    - Use the source code as a reference in new projects
+    - Incorporate any part of Essential into other projects
+    
+    All rights to the code are reserved by ModCore Inc. (Essential).
+  </Accordion>
+
+  <Accordion title="Can I fork the Essential repository?">
+    Yes, as of January 22, 2025, you can create **unmodified forks** of the repository. However, you cannot:
+    - Modify the forked code
+    - Distribute your fork
+    - Use the fork for anything other than auditing and verification
+  </Accordion>
+</AccordionGroup>
+
+## Building and development
+
+<AccordionGroup>
+  <Accordion title="What do I need to build Essential from source?">
+    Before building Essential, you must have:
+    - Java Development Kits (JDKs) for Java versions 21, 17, 16, and 8
+    - Java 21 (or newer) as your default Java version
+    - Git with submodule support
+    
+    No additional tools are required - Gradle will be automatically installed via the gradle-wrapper included in the repository.
+  </Accordion>
+
+  <Accordion title="How do I build Essential?">
+    To build all of Essential for all Minecraft versions:
+    ```bash
+    ./gradlew build
+    ```
+    
+    To build for a specific Minecraft version:
+    ```bash
+    ./gradlew :<version>-<loader>:build
+    ```
+    
+    For example, for Minecraft 1.12.2:
+    ```bash
+    ./gradlew :1.12.2-forge:build
+    ```
+    
+    The first build may take 10 minutes to an hour depending on your system and internet connection.
+  </Accordion>
+
+  <Accordion title="Where can I find the built JAR files?">
+    After building, Essential jar files are located in:
+    ```
+    versions/<MC-Version>/build/libs/
+    ```
+    
+    You'll find two types of jar files:
+    - **pinned_** files - Made available via Modrinth/CurseForge
+    - **Regular** files - Downloaded by in-game update functionality and the Essential Loader
+  </Accordion>
+
+  <Accordion title="What are git submodules and why do I need them?">
+    This repository uses git submodules, which are references to other git repositories. You need to initialize them after cloning:
+    
+    ```bash
+    git submodule update --init --recursive
+    ```
+    
+    Or clone with the `--recursive` flag:
+    ```bash
+    git clone --recursive <repository-url>
+    ```
+    
+    Run `git submodule update --init --recursive` every time after you pull a new version.
+  </Accordion>
+
+  <Accordion title="Can I use a different version of Gradle?">
+    It's highly recommended to use the gradle-wrapper scripts (`./gradlew` on Linux/Mac or `gradlew.bat` on Windows) instead of a local Gradle installation. This ensures you're using the exact same version as the official builds.
+    
+    Essential cannot guarantee that older or newer Gradle versions will work or produce bit-for-bit identical output.
+  </Accordion>
+</AccordionGroup>
+
+## Verification and trust
+
+<AccordionGroup>
+  <Accordion title="How can I verify that my Essential installation is authentic?">
+    You can verify Essential files by:
+    1. Building the mod from source yourself and comparing files
+    2. Checking the GitHub Actions run checksums
+    3. Using SHA-256 checksums to verify files in your `.minecraft` folder
+    
+    See the [Verifying checksums](https://github.com/EssentialGG/Essential#verifying-checksums) section of the README for detailed instructions.
+  </Accordion>
+
+  <Accordion title="What is the CI verification process?">
+    Every Essential release is built twice:
+    1. **Internal CI** - Fast build with integration tests and uploads
+    2. **GitHub Actions** - Public build from source to verify bit-for-bit identical output
+    
+    The second build downloads jars from Essential's infrastructure and confirms they match the publicly built versions, ensuring transparency and authenticity.
+  </Accordion>
+
+  <Accordion title="How do I report a suspicious Essential version?">
+    If you believe a distributed version of Essential Mod doesn't match the official version from the repository, email:
+    
+    **legal@essential.gg**
+    
+    This helps Essential resolve discrepancies and ensure community trust in their products.
+  </Accordion>
+</AccordionGroup>
+
+## Support and resources
+
+<AccordionGroup>
+  <Accordion title="Where can I get help with Essential?">
+    For assistance with the repository or the mod, use the dedicated channels in the [Essential Discord](https://essential.gg/discord).
+    
+    Additional resources:
+    - [Essential Website](https://essential.gg)
+    - [Essential Wiki](https://essential.gg/wiki)
+    - [GitHub Repository](https://github.com/EssentialGG/Essential)
+  </Accordion>
+
+  <Accordion title="What are the different Essential files in my .minecraft folder?">
+    Essential creates several types of files:
+    
+    - **mods/** - Container files (small) or pinned files (large) containing full Essential
+    - **essential/** - Main Essential jar downloaded by the loader
+    - **essential/libraries/** - Extracted library dependencies
+    - **essential/loader/** - Loader stage files for launching Essential
+    
+    Each file type can be verified against the source code. See the README for detailed verification instructions.
+  </Accordion>
+
+  <Accordion title="What's the difference between Essential Container and Essential Loader?">
+    - **Essential Container** - A thin mod that downloads Essential on first launch. Found on essential.gg/download
+    - **Essential Loader** - The system that actually loads Essential, split into stages and platforms
+    
+    Container files don't include Essential itself, while pinned files (on Modrinth/CurseForge) include a specific Essential version.
+  </Accordion>
+</AccordionGroup>

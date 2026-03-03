@@ -1,0 +1,219 @@
+---
+title: Container vs pinned mods
+description: Understand the difference between Essential container and pinned mod files
+---
+
+Essential provides two different types of mod files: container mods and pinned mods. Understanding the difference is important for choosing the right distribution method.
+
+## Overview
+
+The Essential project produces two distinct types of jar files:
+
+- **Container mods**: Thin mods that download Essential on first launch
+- **Pinned mods**: Complete mods with a specific Essential version embedded
+
+## Container mods
+
+Container mods are lightweight files that contain only the code necessary to download and load Essential.
+
+### Characteristics
+
+- **Size**: Less than 1 MB (very small)
+- **Content**: Only Essential Loader code, no Minecraft interaction code
+- **Version**: Downloads the latest Essential version at first launch
+- **Updates**: Automatically updates to new Essential versions
+
+### Where container mods are used
+
+- Files available on [essential.gg/download](https://essential.gg/download)
+- Essential Installer installations
+- Third-party mods that embed the Essential Loader
+- In-game update functionality downloads
+
+### File naming
+
+- Typically includes Minecraft version
+- Does NOT include Essential version number
+- Example: `Essential-fabric-1.20.1.jar`
+
+### Platform variants
+
+Since container mods don't interact with Minecraft directly, there are only four variants:
+
+| Platform | Supported Versions |
+|----------|-------------------|
+| `fabric` | All Fabric versions |
+| `launchwrapper` | Forge 1.8.9 and 1.12.2 |
+| `modlauncher8` | Forge 1.16.5 |
+| `modlauncher9` | Forge 1.17+ |
+
+<Info>
+For more technical details about these platforms, see `loader/docs/platforms.md` in the Essential repository.
+</Info>
+
+### How container mods work
+
+<Steps>
+  <Step title="Initial launch">
+    On first launch, the container mod detects that Essential is not yet downloaded.
+  </Step>
+  
+  <Step title="Download">
+    The container queries Essential's servers for the latest version and downloads it.
+  </Step>
+  
+  <Step title="Loading">
+    The downloaded Essential version is loaded and initialized.
+  </Step>
+  
+  <Step title="Subsequent launches">
+    On future launches, the container checks for updates and loads the cached version.
+  </Step>
+</Steps>
+
+### Building container mods
+
+To build an Essential Container:
+
+```bash
+./gradlew :loader:container:<platform>:build
+```
+
+Replace `<platform>` with one of: `fabric`, `launchwrapper`, `modlauncher8`, or `modlauncher9`.
+
+The resulting jar file will be in `loader/container/<platform>/build/libs/`.
+
+## Pinned mods
+
+Pinned mods are complete mod files that include a specific version of Essential embedded within them.
+
+### Characteristics
+
+- **Size**: Much larger (includes full Essential code)
+- **Content**: Complete Essential mod for a specific version
+- **Version**: Locked to a specific Essential version
+- **Updates**: Requires manual mod file replacement to update
+
+### Where pinned mods are used
+
+- [Modrinth](https://modrinth.com) distributions
+- [CurseForge](https://www.curseforge.com) distributions
+- Users who want version stability
+- Modpack creators who need version control
+
+### File naming
+
+- Starts with `pinned_` prefix
+- Includes both Minecraft and Essential version
+- Example: `pinned_Essential-forge_1-12-2-1.2.3.jar`
+
+### File location
+
+When building from source, pinned mods are found at:
+
+```
+versions/<MC-Version>/build/libs/pinned_*.jar
+```
+
+### How pinned mods work
+
+Pinned mods function like traditional Minecraft mods:
+
+1. The complete Essential code is embedded in the jar
+2. The mod loader loads Essential directly
+3. No download step is required
+4. The version remains constant until the file is replaced
+
+### Building pinned mods
+
+Pinned mods are automatically built when building Essential:
+
+```bash
+# Build for all versions
+./gradlew build
+
+# Build for specific version
+./gradlew :<version>-<loader>:build
+```
+
+Example for Minecraft 1.12.2:
+```bash
+./gradlew :1.12.2-forge:build
+```
+
+<Note>
+Pinned jars are deterministically derived from the main Essential jars. Essential's internal CI doesn't even upload pinned jars - they're regenerated on demand when publishing to Modrinth/CurseForge.
+</Note>
+
+## Comparison
+
+| Feature | Container Mod | Pinned Mod |
+|---------|--------------|------------|
+| File size | < 1 MB | Large (full mod) |
+| Essential version | Latest (auto-update) | Fixed version |
+| First launch | Downloads Essential | Immediate loading |
+| Updates | Automatic | Manual replacement |
+| Internet required | Yes (first launch) | No |
+| Platform variants | 4 variants | Per MC version |
+| Distribution | essential.gg, installer | Modrinth, CurseForge |
+| Use case | Always latest version | Version stability |
+
+## Choosing the right type
+
+### Use container mods when:
+
+- You want automatic updates to the latest Essential version
+- You're okay with a download on first launch
+- You're distributing Essential as part of another mod
+- You want minimal file size
+
+### Use pinned mods when:
+
+- You need a specific Essential version
+- You're creating a modpack with version requirements
+- You want offline functionality from the start
+- You're distributing via Modrinth or CurseForge
+
+## Technical details
+
+### Relationship to main Essential jar
+
+Both container and pinned mods relate to the main Essential jar found in `versions/<MC-Version>/build/libs/`:
+
+- The **main jar** (not starting with `pinned_`) is downloaded by:
+  - Container mods
+  - In-game update functionality
+  - Third-party mods with embedded Essential Loader
+  - Essential Installer
+
+- The **pinned jar** (starting with `pinned_`) is:
+  - A wrapper around the main jar
+  - Published to Modrinth/CurseForge
+  - Automatically derived from the main jar
+
+### Version compatibility
+
+Some Essential versions support multiple Minecraft versions. Check `versions/aliases.txt` in the repository for version mappings.
+
+## Verification
+
+You can identify which type of mod you have:
+
+<Steps>
+  <Step title="Check file size">
+    Container mods are less than 1 MB, pinned mods are much larger.
+  </Step>
+  
+  <Step title="Check filename">
+    - Container: Includes MC version, no Essential version
+    - Pinned: Starts with `pinned_`, includes both versions
+  </Step>
+  
+  <Step title="Check location">
+    Both types can be in `.minecraft/mods/`, but containers may also be embedded in other mods.
+  </Step>
+</Steps>
+
+<Info>
+For information on verifying the authenticity of Essential files, see the [Verifying checksums](/guides/verifying-checksums) guide.
+</Info>

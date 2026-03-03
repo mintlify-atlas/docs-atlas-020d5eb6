@@ -1,0 +1,350 @@
+---
+title: GUI utilities
+description: Essential's Elementa component factory and base GUI classes
+---
+
+The GUI API provides utilities for creating Elementa-based user interfaces with Essential's pre-built components and styling.
+
+## Overview
+
+Essential provides two main GUI utilities:
+
+- **EssentialComponentFactory** - Factory for creating pre-styled Elementa components
+- **EssentialGUI** - Base class for creating consistent GUI screens
+
+## Getting the component factory
+
+```kotlin
+val factory = EssentialAPI.getEssentialComponentFactory()
+```
+
+```java
+EssentialComponentFactory factory = EssentialAPI.getEssentialComponentFactory();
+```
+
+## EssentialComponentFactory
+
+The component factory creates pre-styled Elementa components used throughout Essential.
+
+### Emulated player
+
+Render a 3D player model like the one in Essential's character customizer:
+
+```kotlin
+val player = factory.buildEmulatedPlayer {
+    profile = gameProfile
+    showCape = true
+    draggable = true
+    renderNameTag = false
+}
+```
+
+#### EmulatedPlayerBuilder properties
+
+<ParamField path="profile" type="GameProfile">
+  The player's game profile to render
+</ParamField>
+
+<ParamField path="wrappedProfileState" type="State<WrappedGameProfile?>">
+  Reactive state for the wrapped game profile (recommended over profileState)
+</ParamField>
+
+<ParamField path="showCape" type="Boolean" default="true">
+  Whether to render the player's cape if present
+</ParamField>
+
+<ParamField path="showCapeState" type="State<Boolean>">
+  Reactive state for cape visibility
+</ParamField>
+
+<ParamField path="draggable" type="Boolean" default="true">
+  Whether the player model can be rotated with the mouse
+</ParamField>
+
+<ParamField path="draggableState" type="State<Boolean>">
+  Reactive state for draggable setting
+</ParamField>
+
+<ParamField path="renderNameTag" type="Boolean" default="false">
+  Whether to render the player's name tag
+</ParamField>
+
+<ParamField path="renderNameTagState" type="State<Boolean>">
+  Reactive state for name tag rendering
+</ParamField>
+
+#### Example
+
+```kotlin
+import gg.essential.api.EssentialAPI
+import gg.essential.api.gui.buildEmulatedPlayer
+import gg.essential.elementa.state.BasicState
+
+val profileState = BasicState<GameProfile?>(null)
+
+val playerComponent = EssentialAPI.getEssentialComponentFactory().buildEmulatedPlayer {
+    wrappedProfileState = profileState.map { it?.wrapped() }
+    showCape = true
+    draggable = true
+    renderNameTag = true
+}
+
+// Update the player later
+profileState.set(someGameProfile)
+```
+
+<Note>
+  Use `wrappedProfileState` instead of `profileState` for better equality comparisons, as `GameProfile` has a broken `equals()` implementation.
+</Note>
+
+### Confirmation modal
+
+Create confirmation dialogs like those in Essential's friends menu:
+
+```kotlin
+val modal = factory.buildConfirmationModal {
+    text = "Are you sure?"
+    secondaryText = "This action cannot be undone."
+    confirmButtonText = "Delete"
+    denyButtonText = "Cancel"
+    onConfirm = { userInput ->
+        // Handle confirmation
+    }
+    onDeny = {
+        // Handle denial
+    }
+}
+```
+
+#### ConfirmationModalBuilder properties
+
+<ParamField path="text" type="String" required>
+  Primary modal text
+</ParamField>
+
+<ParamField path="secondaryText" type="String?" default="null">
+  Additional descriptive text shown below the primary text
+</ParamField>
+
+<ParamField path="inputPlaceholder" type="String?" default="null">
+  Placeholder text for an optional input field
+</ParamField>
+
+<ParamField path="confirmButtonText" type="String" default="Confirm">
+  Text for the confirm button
+</ParamField>
+
+<ParamField path="denyButtonText" type="String" default="Decline">
+  Text for the deny button
+</ParamField>
+
+<ParamField path="onConfirm" type="(String) -> Unit" default="{}">
+  Callback invoked when the confirm button is clicked. Receives user input if an input field was shown.
+</ParamField>
+
+<ParamField path="onDeny" type="() -> Unit" default="{}">
+  Callback invoked when the deny button is clicked
+</ParamField>
+
+#### Example with input
+
+```kotlin
+val deleteModal = factory.buildConfirmationModal {
+    text = "Delete world?"
+    secondaryText = "Type the world name to confirm deletion."
+    inputPlaceholder = "World name"
+    confirmButtonText = "Delete"
+    denyButtonText = "Cancel"
+    
+    onConfirm = { userInput ->
+        if (userInput == worldName) {
+            deleteWorld()
+            EssentialAPI.getNotifications().push(
+                "Success",
+                "World deleted"
+            )
+        } else {
+            EssentialAPI.getNotifications().push(
+                "Error",
+                "World name doesn't match"
+            )
+        }
+    }
+}
+```
+
+## EssentialGUI
+
+A base `WindowScreen` class with Essential's styling and layout structure. Provides a consistent foundation for custom GUIs.
+
+### Creating a custom GUI
+
+```kotlin
+import gg.essential.api.gui.EssentialGUI
+import gg.essential.elementa.ElementaVersion
+import gg.essential.elementa.components.UIText
+import gg.essential.elementa.dsl.childOf
+import gg.essential.elementa.dsl.constrain
+import gg.essential.elementa.dsl.pixels
+
+class MyCustomGUI : EssentialGUI(
+    version = ElementaVersion.V2,
+    guiTitle = "My Custom Menu",
+    discordActivityDescription = "Configuring settings"
+) {
+    init {
+        UIText("Hello, Essential!")
+            .constrain {
+                x = 10.pixels
+                y = 10.pixels
+            } childOf content
+    }
+}
+
+// Display the GUI
+EssentialAPI.getGuiUtil().openScreen(MyCustomGUI())
+```
+
+### Constructor parameters
+
+<ParamField path="version" type="ElementaVersion" required>
+  Elementa version for improved behavior (use `ElementaVersion.V2`)
+</ParamField>
+
+<ParamField path="guiTitle" type="String" default="">
+  Title displayed in the GUI's title bar
+</ParamField>
+
+<ParamField path="newGuiScale" type="Int" default="auto">
+  GUI scale override. Defaults to Essential's configured scale.
+</ParamField>
+
+<ParamField path="restorePreviousGuiOnClose" type="Boolean" default="true">
+  Whether to restore the previous screen when this GUI is closed
+</ParamField>
+
+<ParamField path="discordActivityDescription" type="String?" default="null">
+  Description shown in Discord Rich Presence (e.g., "Customizing their character", "Browsing screenshots")
+</ParamField>
+
+### Properties
+
+<ParamField path="content" type="UIContainer">
+  Main content container where you should add your GUI elements
+</ParamField>
+
+<ParamField path="titleBar" type="UIBlock">
+  The title bar container at the top of the GUI
+</ParamField>
+
+<ParamField path="titleText" type="UIWrappedText">
+  The title text component
+</ParamField>
+
+<ParamField path="backButtonVisible" type="Boolean" default="true">
+  Whether the back button is visible
+</ParamField>
+
+### Methods
+
+#### setTitle
+
+Update the GUI title:
+
+```kotlin
+fun setTitle(newTitle: String)
+```
+
+#### backButtonPressed
+
+Override to customize back button behavior:
+
+```kotlin
+override fun backButtonPressed() {
+    // Custom logic before going back
+    saveSettings()
+    super.backButtonPressed() // or restorePreviousScreen()
+}
+```
+
+### Customizing colors
+
+Override color methods to customize the GUI appearance:
+
+```kotlin
+class MyCustomGUI : EssentialGUI(ElementaVersion.V2, "Custom Colors") {
+    override fun getTitleBackgroundColor() = Color(0x1a1a1a)
+    override fun getBackgroundColor() = Color(0x0d0d0d)
+    override fun getTextColor() = Color(0x00ff00)
+}
+```
+
+Available color methods:
+- `getTitleBackgroundColor()`
+- `getTitleEdgesColor()`
+- `getBackgroundColor()`
+- `getContentEdgesColor()`
+- `getButtonColor()`
+- `getButtonHighlightColor()`
+- `getTextColor()`
+- `getTextHighlightColor()`
+
+### Complete example
+
+```kotlin
+import gg.essential.api.EssentialAPI
+import gg.essential.api.gui.EssentialGUI
+import gg.essential.api.gui.buildEmulatedPlayer
+import gg.essential.elementa.ElementaVersion
+import gg.essential.elementa.components.*
+import gg.essential.elementa.constraints.*
+import gg.essential.elementa.dsl.*
+import java.awt.Color
+
+class PlayerViewerGUI(private val gameProfile: GameProfile) : EssentialGUI(
+    version = ElementaVersion.V2,
+    guiTitle = "Player Viewer",
+    discordActivityDescription = "Viewing player profile"
+) {
+    init {
+        // Add player model
+        val playerModel = EssentialAPI.getEssentialComponentFactory().buildEmulatedPlayer {
+            profile = gameProfile
+            showCape = true
+            draggable = true
+            renderNameTag = true
+        }.constrain {
+            x = CenterConstraint()
+            y = CenterConstraint()
+            width = 200.pixels
+            height = 300.pixels
+        } childOf content
+        
+        // Add player name
+        UIText(gameProfile.name).constrain {
+            x = CenterConstraint()
+            y = 10.pixels
+            color = Color.WHITE.toConstraint()
+        } childOf content
+    }
+    
+    override fun backButtonPressed() {
+        // Return to main menu
+        restorePreviousScreen()
+    }
+}
+```
+
+## Best practices
+
+<Tip>
+  Always use `ElementaVersion.V2` when creating new GUIs for improved layout behavior and bug fixes.
+</Tip>
+
+<Tip>
+  Use reactive states (`State<T>`) for dynamic properties in emulated players and other components to automatically update when data changes.
+</Tip>
+
+<Note>
+  Add all custom components to the `content` container, not directly to the window. This ensures proper layout and styling.
+</Note>

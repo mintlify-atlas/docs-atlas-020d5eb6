@@ -1,0 +1,198 @@
+---
+title: Cosmetics rendering API
+description: Control how cosmetics interact with armor items
+---
+
+The Cosmetics Rendering API allows mod developers to control whether Essential cosmetics are hidden when custom armor items are equipped.
+
+## Overview
+
+By default, Essential hides cosmetics on body parts when armor is equipped. This prevents visual conflicts between armor models and cosmetic items like hats, wings, or clothing.
+
+However, some custom armor items (like decorative accessories) may want cosmetics to remain visible. The `RenderCosmetic` interface provides this capability.
+
+## How it works
+
+When armor is equipped:
+
+1. Essential checks if the item implements `RenderCosmetic`
+2. If it does, cosmetics continue to render on that body part
+3. If it doesn't, cosmetics are hidden as normal
+
+## Implementation
+
+Simply implement the `RenderCosmetic` marker interface on your armor item:
+
+```kotlin
+import gg.essential.api.cosmetics.RenderCosmetic
+import net.minecraft.item.ItemArmor
+
+class DecorativeHat : ItemArmor(
+    material,
+    renderIndex,
+    armorType
+), RenderCosmetic {
+    // Your item implementation
+}
+```
+
+```java
+import gg.essential.api.cosmetics.RenderCosmetic;
+import net.minecraft.item.ItemArmor;
+
+public class DecorativeHat extends ItemArmor implements RenderCosmetic {
+    public DecorativeHat(ArmorMaterial material, int renderIndex, int armorType) {
+        super(material, renderIndex, armorType);
+    }
+    
+    // Your item implementation
+}
+```
+
+## Use cases
+
+### Decorative items
+
+Items that are purely cosmetic and don't have bulky models:
+
+```kotlin
+class PartyHat : ItemArmor(
+    DECORATIVE_MATERIAL,
+    0,
+    EntityEquipmentSlot.HEAD
+), RenderCosmetic {
+    // Small decorative hat that won't conflict with cosmetics
+}
+```
+
+### Transparent armor
+
+Armor with transparent or minimal models:
+
+```kotlin
+class GlassArmor : ItemArmor(
+    GLASS_MATERIAL,
+    0,
+    armorType
+), RenderCosmetic {
+    // Transparent armor that allows cosmetics to show through
+}
+```
+
+### Accessory items
+
+Items worn as accessories rather than protective gear:
+
+```kotlin
+class BraceletItem : ItemArmor(
+    ACCESSORY_MATERIAL,
+    0,
+    EntityEquipmentSlot.FEET  // Using feet slot for accessories
+), RenderCosmetic {
+    // Bracelet that doesn't interfere with cosmetics
+}
+```
+
+## Body part reference
+
+Essential hides cosmetics on specific body parts based on armor slot:
+
+| Armor Slot | Body Parts Hidden |
+|------------|------------------|
+| HEAD       | Head, face cosmetics |
+| CHEST      | Torso, back cosmetics (wings, capes) |
+| LEGS       | Leg cosmetics |
+| FEET       | Foot cosmetics |
+
+Implementing `RenderCosmetic` prevents hiding cosmetics for that slot.
+
+## Complete example
+
+```kotlin
+import gg.essential.api.cosmetics.RenderCosmetic
+import net.minecraft.creativetab.CreativeTabs
+import net.minecraft.inventory.EntityEquipmentSlot
+import net.minecraft.item.ItemArmor
+
+/**
+ * A decorative crown that allows Essential cosmetics to remain visible.
+ */
+class CrownItem : ItemArmor(
+    ArmorMaterial.GOLD,
+    0,
+    EntityEquipmentSlot.HEAD
+), RenderCosmetic {
+    
+    init {
+        setCreativeTab(CreativeTabs.COMBAT)
+        setUnlocalizedName("crown")
+        setRegistryName("crown")
+    }
+    
+    override fun getArmorTexture(
+        stack: ItemStack,
+        entity: Entity,
+        slot: EntityEquipmentSlot,
+        type: String?
+    ): String {
+        return "mymod:textures/models/armor/crown.png"
+    }
+}
+```
+
+```java
+import gg.essential.api.cosmetics.RenderCosmetic;
+import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.inventory.EntityEquipmentSlot;
+import net.minecraft.item.ItemArmor;
+import net.minecraft.item.ItemStack;
+import net.minecraft.entity.Entity;
+
+/**
+ * A decorative crown that allows Essential cosmetics to remain visible.
+ */
+public class CrownItem extends ItemArmor implements RenderCosmetic {
+    
+    public CrownItem() {
+        super(ArmorMaterial.GOLD, 0, EntityEquipmentSlot.HEAD);
+        setCreativeTab(CreativeTabs.COMBAT);
+        setUnlocalizedName("crown");
+        setRegistryName("crown");
+    }
+    
+    @Override
+    public String getArmorTexture(
+        ItemStack stack,
+        Entity entity,
+        EntityEquipmentSlot slot,
+        String type
+    ) {
+        return "mymod:textures/models/armor/crown.png";
+    }
+}
+```
+
+## Testing
+
+1. Equip your custom armor item
+2. Verify Essential cosmetics remain visible
+3. Test with different cosmetic types (hats, wings, etc.)
+4. Ensure there are no visual conflicts
+
+## Best practices
+
+<Tip>
+  Only implement `RenderCosmetic` on items with minimal or non-conflicting models. Bulky armor should hide cosmetics to prevent visual glitches.
+</Tip>
+
+<Note>
+  This interface only affects Essential's cosmetic system. Other rendering behavior is unchanged.
+</Note>
+
+<Tip>
+  Test your armor with various Essential cosmetics to ensure there are no clipping or z-fighting issues.
+</Tip>
+
+<Note>
+  Users can override this behavior in Essential settings with `hideCosmeticsWhenServerOverridesSkin` if a server changes their skin.
+</Note>

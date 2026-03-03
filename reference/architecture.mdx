@@ -1,0 +1,144 @@
+---
+title: Project architecture
+description: Understanding the Essential mod's code structure and organization
+---
+
+Essential is organized into a modular architecture with distinct components for different functionality. This page explains how the codebase is structured and how the different parts work together.
+
+## Repository structure
+
+The Essential repository follows a multi-module Gradle project structure:
+
+```
+Essential/
+├── api/                    # Public API modules
+├── build-logic/            # Custom Gradle plugins and build configuration
+├── elementa/               # UI layout and state management libraries
+├── gui/                    # GUI components (Elementa, Essential, Vigilance)
+├── loader/                 # Multi-stage loader system (git submodule)
+├── subprojects/            # Feature modules and utilities
+└── versions/               # Per-version mod implementations
+```
+
+## Core modules
+
+### Subprojects
+
+The `subprojects/` directory contains feature-specific modules:
+
+- **classloaders** - Custom classloader implementations
+- **clipboard** - Cross-platform clipboard support
+- **cosmetics** - Cosmetic rendering and management
+- **feature-flags** - Feature flag system for controlled rollouts
+- **ice** - ICE protocol implementation
+- **immediatelyfast** - Performance optimizations
+- **infra** - Infrastructure and networking code
+- **kdiscordipc** - Discord IPC integration
+- **libs** - Shared library dependencies
+- **lwjgl3** - LWJGL 3 integration for older Minecraft versions
+- **minecraft-auth** - Authentication system
+- **plasmo** - Voice chat functionality
+- **pseudotcp** - TCP-over-UDP implementation
+- **quic-connector** - QUIC protocol connector
+- **slf4j-to-log4j** - Logging adapter for MC < 1.19.3
+- **utils** - Common utilities
+- **vigilance2** - Settings/configuration system
+
+### GUI modules
+
+Located in `gui/`, these provide the user interface:
+
+- **elementa** - Modern declarative UI framework
+- **essential** - Essential-specific UI components
+- **vigilance** - Settings GUI framework
+
+### Version modules
+
+The `versions/` directory contains platform-specific implementations for each supported Minecraft version and loader combination (e.g., `1.8.9-forge`, `1.21.1-fabric`).
+
+Each version module:
+- Implements version-specific code and mixins
+- Depends on the core subprojects
+- Produces the final mod JAR for that platform
+
+## Loader system
+
+Essential uses a sophisticated multi-stage loader architecture to support all Minecraft versions and mod loaders.
+
+### Loader stages
+
+The loader is split into three stages, each with separate JAR files per platform:
+
+1. **Stage 0** - Bootstraps the loading process from the mod file
+2. **Stage 1** - Sets up the environment and prepares for mod loading
+3. **Stage 2** - Loads the actual Essential mod code
+
+See the [Platforms reference](/reference/platforms) for details on the different platform variants.
+
+### Container vs. pinned mods
+
+Essential distributes two types of mod files:
+
+**Container mods** (essential.gg/download):
+- Small JAR files (~100 KB)
+- Download the latest Essential version on first launch
+- Auto-update to new versions
+- Used by the Essential Installer
+
+**Pinned mods** (Modrinth/CurseForge):
+- Large JAR files (several MB)
+- Contain a specific Essential version
+- Filename starts with `pinned_`
+- Deterministically derived from main JAR files
+
+<Note>
+The loader stages and platforms are documented in the `loader/` submodule. For technical details, see `loader/docs/stages.md` and `loader/docs/platforms.md` in the source repository.
+</Note>
+
+## Build system
+
+### Multi-version support
+
+The build system uses custom Gradle plugins to manage the complexity of building for multiple Minecraft versions:
+
+- **gg.essential.multi-version** - Handles version-specific code paths
+- **gg.essential.bundle** - Bundles dependencies into the mod JAR
+- **gg.essential.relocate** - Relocates dependency packages to avoid conflicts
+- **gg.essential.mixin** - Configures Mixin transformations
+
+### Build outputs
+
+Building a version produces two JAR files in `versions/<MC-Version>/build/libs/`:
+
+1. **Main JAR** - `Essential (<Loader>_<MC-Version>).jar`
+   - Downloaded by auto-updater and container mods
+   - Installed to `.minecraft/essential/`
+
+2. **Pinned JAR** - `pinned_Essential (<Loader>_<MC-Version>).jar`
+   - Distributed via Modrinth and CurseForge
+   - Installed to `.minecraft/mods/`
+
+## Git submodules
+
+The repository uses git submodules for the loader system. After cloning:
+
+```bash
+git submodule update --init --recursive
+```
+
+Run this command after every `git pull` to ensure submodules are up to date.
+
+<Info>
+For build instructions and requirements, see the [Building Essential](/building) guide.
+</Info>
+
+## Java version requirements
+
+Building Essential requires multiple JDK versions installed:
+
+- **Java 21** (or newer) - Default Java version
+- **Java 17** - For modern Minecraft versions
+- **Java 16** - For transitional versions
+- **Java 8** - For legacy Minecraft versions
+
+See [Building Essential](/building) for detailed setup instructions.

@@ -1,0 +1,130 @@
+---
+title: Supported Minecraft versions
+description: Complete list of Minecraft versions and platforms supported by Essential
+---
+
+Essential supports a wide range of Minecraft versions across multiple mod loaders. This page lists all officially supported versions and their platform combinations.
+
+## Supported versions
+
+Essential currently supports the following Minecraft versions:
+
+| Minecraft Version | Forge | Fabric | NeoForge |
+|------------------|-------|--------|----------|
+| 1.8.9 | ✓ | - | - |
+| 1.12.2 | ✓ | - | - |
+| 1.16.2 | ✓ | ✓ | - |
+| 1.17.1 | ✓ | ✓ | - |
+| 1.18.1 | - | ✓ | - |
+| 1.18.2 | ✓ | ✓ | - |
+| 1.19 | - | ✓ | - |
+| 1.19.2 | ✓ | ✓ | - |
+| 1.19.3 | ✓ | ✓ | - |
+| 1.19.4 | ✓ | ✓ | - |
+| 1.20 | - | ✓ | - |
+| 1.20.1 | ✓ | ✓ | - |
+| 1.20.2 | ✓ | ✓ | - |
+| 1.20.4 | ✓ | ✓ | ✓ |
+| 1.20.6 | ✓ | ✓ | ✓ |
+| 1.21.1 | ✓ | ✓ | ✓ |
+| 1.21.3 | ✓ | ✓ | ✓ |
+| 1.21.4 | ✓ | ✓ | ✓ |
+| 1.21.5 | ✓ | ✓ | ✓ |
+| 1.21.6 | - | ✓ | - |
+| 1.21.7 | ✓ | ✓ | ✓ |
+| 1.21.9 | - | ✓ | - |
+| 1.21.11 | - | ✓ | - |
+
+<Info>
+NeoForge support begins with Minecraft 1.20.4, when NeoForge was first released as a Forge fork.
+</Info>
+
+## Version aliases
+
+Some Minecraft versions share the same Essential build due to compatibility. These versions use "aliases" that point to a different version's build:
+
+| Requested Version | Actual Build Used |
+|------------------|-------------------|
+| 1.16.5-forge | 1.16.2-forge |
+| 1.16.5-fabric | 1.16.2-fabric |
+| 1.18-fabric | 1.18.1-fabric |
+| 1.19.1-fabric | 1.19.2-fabric |
+| 1.21-fabric | 1.21.1-fabric |
+| 1.21.2-fabric | 1.21.3-fabric |
+| 1.21.8-fabric | 1.21.7-fabric |
+| 1.21.8-forge | 1.21.7-forge |
+| 1.21.8-neoforge | 1.21.7-neoforge |
+| 1.21.10-fabric | 1.21.9-fabric |
+
+<Note>
+Version aliases allow Essential to support more Minecraft versions without building separate binaries for each minor update.
+</Note>
+
+## Legacy versions
+
+Essential's primary development focuses on Minecraft 1.12.2, with builds for all other versions derived from this base.
+
+### Minecraft 1.8.9 and 1.12.2
+
+These are the legacy Forge versions that use LaunchWrapper:
+- Popular for PvP and older servers
+- Most mature Essential codebase
+- Full feature support
+
+### Minecraft 1.16.2+
+
+Modern versions with Forge ModLauncher and Fabric support:
+- Require Java 16+ for building
+- Use newer Mixin systems
+- May require additional setup steps when building
+
+## Platform naming convention
+
+When referencing specific versions in the codebase or build commands, use the format:
+
+```
+<minecraft-version>-<loader>
+```
+
+Examples:
+- `1.8.9-forge`
+- `1.21.1-fabric`
+- `1.20.4-neoforge`
+
+## Building specific versions
+
+To build Essential for a specific version:
+
+```bash
+./gradlew :<version>-<loader>:build
+```
+
+For example:
+
+```bash
+./gradlew :1.12.2-forge:build
+./gradlew :1.21.1-fabric:build
+./gradlew :1.20.4-neoforge:build
+```
+
+<Note>
+Building any version other than 1.12.2 (the main version) requires all versions between it and 1.12.2 to be set up first. The time saved over building all versions may vary.
+</Note>
+
+## Version detection
+
+The build system automatically detects the Minecraft version and platform from the project name. These are available in build scripts as:
+
+- `mcVersion: Int` - Numeric version (e.g., `11202` for 1.12.2)
+- `mcVersionStr: String` - String version (e.g., `"1.12.2"`)
+- `mcPlatform: String` - Platform name (`"forge"`, `"fabric"`, or `"neoforge"`)
+
+## Version-specific dependencies
+
+Some dependencies are only included for specific version ranges:
+
+- **slf4j-to-log4j** - Bundled for MC < 1.19.3 (older versions lack slf4j)
+- **immediatelyfast** - Included for MC ≥ 1.18.0 (performance optimizations)
+- **Fabric API modules** - Included for MC ≥ 1.20.6 on Fabric
+
+See `build.gradle.kts` in the source repository for complete dependency logic.

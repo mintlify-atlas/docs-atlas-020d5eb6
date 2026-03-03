@@ -1,0 +1,211 @@
+---
+title: Loader platforms
+description: Understanding Essential's support for different mod loaders and platforms
+---
+
+Essential supports multiple mod loader platforms, each with different loading mechanisms and requirements. This page explains how Essential adapts to different platforms.
+
+## Platform types
+
+Essential categorizes mod loaders into four platform variants based on their loading mechanism:
+
+| Platform | Loader | Minecraft Versions | Description |
+|----------|--------|-------------------|-------------|
+| **launchwrapper** | Forge | 1.8.9, 1.12.2 | Legacy Forge using LaunchWrapper |
+| **modlauncher8** | Forge | 1.16.5 | Modern Forge with ModLauncher 8 |
+| **modlauncher9** | Forge/NeoForge | 1.17+ | Modern Forge/NeoForge with ModLauncher 9+ |
+| **fabric** | Fabric | All Fabric versions | Fabric loader |
+
+<Note>
+These platform variants determine which container mod and loader stages are used. Each platform has its own set of loader JAR files.
+</Note>
+
+## Forge platforms
+
+### LaunchWrapper (legacy)
+
+**Platform identifier:** `launchwrapper`
+
+**Minecraft versions:** 1.8.9, 1.12.2
+
+Legacy Forge versions use the LaunchWrapper system for mod loading:
+- Tweaker-based loading mechanism
+- FML (Forge Mod Loader) integration
+- Development uses custom `DevelopmentTweaker` for Mixin support
+- Most stable and mature Essential implementation
+
+### ModLauncher 8
+
+**Platform identifier:** `modlauncher8`
+
+**Minecraft versions:** 1.16.5
+
+Forge 1.16.5 introduced ModLauncher 8:
+- Service-based loading architecture
+- Improved transformation system
+- Transition version between legacy and modern Forge
+
+### ModLauncher 9+
+
+**Platform identifier:** `modlauncher9`
+
+**Minecraft versions:** 1.17.1 and above
+
+Modern Forge and all NeoForge versions use ModLauncher 9 or newer:
+- Latest Forge loading architecture
+- Used by NeoForge since its inception (1.20.4+)
+- Unified platform for Forge 1.17+ and all NeoForge versions
+- Enhanced security and validation features
+
+## Fabric platform
+
+**Platform identifier:** `fabric`
+
+**Minecraft versions:** All Fabric-supported versions (1.16.2+)
+
+Fabric uses a different loading approach than Forge:
+- Lightweight loader with minimal modifications to Minecraft
+- Mixin-based transformation system
+- Requires `fabric.mod.json` for mod metadata
+- Separate loader versioning (Essential requires Fabric Loader 0.11.0+)
+
+<Info>
+Essential compiles against Fabric Loader 0.11.0 to ensure compatibility with older versions while avoiding APIs only available in newer loaders.
+</Info>
+
+### Fabric API integration
+
+For Minecraft 1.20.6 and above, Essential bundles specific Fabric API modules:
+- `fabric-api-base`
+- `fabric-networking-api-v1`
+
+These are included directly in the mod JAR to ensure necessary APIs are available.
+
+## NeoForge platform
+
+**Platform identifier:** `modlauncher9` (shares infrastructure with modern Forge)
+
+**Minecraft versions:** 1.20.4 and above
+
+NeoForge is a fork of Forge that maintains compatibility with the ModLauncher 9 infrastructure:
+- Uses same platform variant as Forge 1.17+
+- Separate mod metadata format (`neoforge.mods.toml`)
+- Full feature parity with Forge builds
+- Growing support for modern Minecraft versions
+
+## Container mods
+
+Essential distributes lightweight "container" mods that download the full mod on first launch. There are four container variants, one for each platform:
+
+| Container | Platform | Used For |
+|-----------|----------|----------|
+| `container-launchwrapper` | launchwrapper | Forge 1.8.9, 1.12.2 |
+| `container-modlauncher8` | modlauncher8 | Forge 1.16.5 |
+| `container-modlauncher9` | modlauncher9 | Forge 1.17+, NeoForge |
+| `container-fabric` | fabric | All Fabric versions |
+
+### Building container mods
+
+To build a container mod for a specific platform:
+
+```bash
+./gradlew :loader:container:<platform>:build
+```
+
+Examples:
+```bash
+./gradlew :loader:container:fabric:build
+./gradlew :loader:container:launchwrapper:build
+./gradlew :loader:container:modlauncher9:build
+```
+
+Container JARs are output to `loader/container/<platform>/build/libs/`.
+
+## Loader stages
+
+Each platform has three loader stages with separate JAR files:
+
+### Stage 0
+Bootstraps Essential loading from the mod file:
+- Extracted from container or pinned mod JAR
+- Platform-specific initialization code
+- Minimal dependencies
+
+### Stage 1
+Sets up the loading environment:
+- Located at `.minecraft/essential/loader/stage1.jar`
+- Shared across all versions using the same platform
+- Loads Stage 2
+
+### Stage 2
+Prepares for mod execution:
+- Located at `.minecraft/essential/loader/stage2.<Loader>_<MC-Version>.jar`
+- Platform and version-specific
+- Loads the main Essential mod JAR
+- May be updated independently of Essential versions
+
+<Note>
+For detailed technical information about loader stages, see `loader/docs/stages.md` in the source repository.
+</Note>
+
+## Platform detection in code
+
+The build system provides platform detection properties:
+
+```kotlin
+val mcPlatform: String // "forge", "fabric", or "neoforge"
+
+// Platform check helpers
+platform.isFabric      // true for Fabric
+platform.isForge       // true for Forge (not NeoForge)
+platform.isNeoForge    // true for NeoForge
+platform.isLegacyForge // true for LaunchWrapper versions
+```
+
+## Platform-specific configuration
+
+### Mixin configurations
+
+Fabric and Forge use different Mixin configuration approaches:
+
+**Forge/NeoForge:** Mixins declared in JAR manifest
+```
+MixinConfigs: mixins.essential.json,mixins.essential.init.json,...
+```
+
+**Fabric:** Mixins declared in `fabric.mod.json`
+```json
+{
+  "mixins": [
+    "mixins.essential.json",
+    "mixins.essential.init.json"
+  ]
+}
+```
+
+### Metadata formats
+
+Each platform uses different mod metadata:
+
+- **Forge (legacy):** `mcmod.info`
+- **Forge (modern):** `mods.toml`
+- **NeoForge:** `neoforge.mods.toml` (becomes `mods.toml` in JAR)
+- **Fabric:** `fabric.mod.json`
+
+## Building loader components
+
+To build all loader components for all platforms:
+
+```bash
+./gradlew build
+```
+
+Loader JARs are output to:
+- `loader/stage0/<platform>/build/libs/`
+- `loader/stage1/<platform>/build/libs/`
+- `loader/stage2/<platform>/build/libs/`
+- `loader/container/<platform>/build/libs/`
+
+<Info>
+The loader is built automatically when building Essential mod since it's included in the pinned JAR files.
+</Info>

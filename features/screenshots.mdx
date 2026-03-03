@@ -1,0 +1,376 @@
+---
+title: Screenshot management
+description: Capture, edit, organize, and share your Minecraft moments with Essential's powerful screenshot tools
+icon: camera
+---
+
+Essential provides a comprehensive screenshot system that goes far beyond vanilla Minecraft's basic screenshot functionality, offering editing, organization, and sharing capabilities.
+
+## Quick overview
+
+<CardGroup cols={2}>
+  <Card title="Screenshot browser" icon="images">
+    Browse all screenshots sorted by world or server with an intuitive interface
+  </Card>
+  
+  <Card title="Screenshot editor" icon="pen-to-square">
+    Draw on and crop screenshots before saving them
+  </Card>
+  
+  <Card title="Quick actions" icon="bolt">
+    Upload, copy, edit, and favorite from the preview toast
+  </Card>
+  
+  <Card title="Media sharing" icon="share-nodes">
+    Upload screenshots to share links with friends and communities
+  </Card>
+</CardGroup>
+
+## Taking screenshots
+
+<Tabs>
+  <Tab title="Basic usage">
+    ### Capturing screenshots
+    
+    Press the screenshot key (default: `F2`) to capture your game screen. Essential enhances this with:
+    
+    - **Instant preview** - See a thumbnail preview of your screenshot immediately
+    - **Quick actions** - Hover over the preview for instant actions
+    - **Custom sound** - Distinct screenshot sound effect
+    - **Async capture** - Screenshots taken without lag on 1.8.9 & 1.12.2
+    
+    <Info>
+      Screenshots are saved to your `.minecraft/screenshots` folder and automatically appear in the Screenshot Manager.
+    </Info>
+  </Tab>
+  
+  <Tab title="Quick actions">
+    ### Screenshot preview actions
+    
+    When you take a screenshot, hover over the preview toast to access:
+    
+    - **Upload** - Share your screenshot via link
+    - **Copy** - Copy the image to clipboard
+    - **Edit** - Open in the screenshot editor
+    - **Favorite** - Mark as favorite for easy access
+    
+    <Note>
+      You can configure which quick action runs automatically after taking a screenshot in Essential settings. The default is "Copy Picture".
+    </Note>
+  </Tab>
+  
+  <Tab title="Advanced">
+    ### Performance optimization
+    
+    Essential optimizes screenshot capture for better performance:
+    
+    **On Minecraft 1.8.9 and 1.12.2:**
+    - Screenshots are taken asynchronously
+    - No lag or frame drops during capture
+    - Multiple screenshots can be taken rapidly
+    
+    **On all versions:**
+    - Efficient image processing
+    - Background upload capability
+    - Optimized storage format
+    
+    <Warning>
+      Screenshots taken while notifications are active may be blank on Minecraft 1.21.5. This has been fixed in recent versions.
+    </Warning>
+  </Tab>
+</Tabs>
+
+## Screenshot browser
+
+The Screenshot Manager provides a powerful interface for organizing and managing your captures.
+
+### Accessing the browser
+
+- Open via keybind (check Controls settings)
+- Click the Essential button on main menu → Screenshot Manager
+- View from the screenshot preview toast
+
+### Organization features
+
+<AccordionGroup>
+  <Accordion title="Sorting & filtering" icon="filter">
+    **Sort by:**
+    - Date taken (newest/oldest)
+    - World or server
+    - Favorites
+    - File size
+    
+    **Filter by:**
+    - Specific worlds
+    - Specific servers
+    - Favorite status
+    - Date ranges
+  </Accordion>
+  
+  <Accordion title="View modes" icon="grid">
+    **Grid view:**
+    - Thumbnail grid layout
+    - Quick visual browsing
+    - Responsive sizing
+    
+    **List view:**
+    - Detailed file information
+    - Metadata display
+    - Compact organization
+    
+    <Note>
+      Screenshots automatically resize correctly after window resize events.
+    </Note>
+  </Accordion>
+  
+  <Accordion title="Batch operations" icon="list-check">
+    - Select multiple screenshots
+    - Bulk delete operations
+    - Batch upload to media.essential.gg
+    - Mass favorite/unfavorite
+  </Accordion>
+</AccordionGroup>
+
+## Screenshot editor
+
+Edit your screenshots before sharing them with built-in editing tools.
+
+### Editing tools
+
+<Tabs>
+  <Tab title="Drawing">
+    ### Drawing tools
+    
+    Add annotations and highlights to your screenshots:
+    
+    - **Freehand drawing** - Draw freely with customizable brush
+    - **Color picker** - Choose from full color palette
+    - **Brush sizes** - Multiple thickness options
+    - **Undo/redo** - Reverse unwanted changes
+    - **Clear all** - Start over with original image
+    
+    Perfect for:
+    - Highlighting important areas
+    - Adding arrows and annotations
+    - Creating guides or tutorials
+    - Censoring sensitive information
+  </Tab>
+  
+  <Tab title="Cropping">
+    ### Crop tool
+    
+    Trim your screenshots to focus on what matters:
+    
+    - **Aspect ratio presets** - Common ratios (16:9, 4:3, 1:1)
+    - **Free crop** - Custom dimensions
+    - **Precise selection** - Pixel-perfect cropping
+    - **Preview** - See result before applying
+    
+    Use cases:
+    - Remove HUD elements
+    - Focus on specific details
+    - Prepare for social media
+    - Create thumbnails
+  </Tab>
+  
+  <Tab title="Saving">
+    ### Save options
+    
+    After editing:
+    
+    - **Save** - Overwrites original screenshot
+    - **Save as new** - Creates a copy
+    - **Cancel** - Discard changes
+    - **Upload** - Save and share immediately
+    
+    <Warning>
+      Saving will overwrite the original file. Use "Save as new" to preserve the original screenshot.
+    </Warning>
+  </Tab>
+</Tabs>
+
+## Uploading & sharing
+
+Share your screenshots with friends and communities through Essential's upload system.
+
+### Upload methods
+
+<Steps>
+  <Step title="Quick upload">
+    Click "Upload" from the screenshot preview toast immediately after capture
+  </Step>
+  
+  <Step title="Browser upload">
+    Select screenshots in the Screenshot Manager and click "Upload"
+  </Step>
+  
+  <Step title="Editor upload">
+    Upload directly after editing in the Screenshot Editor
+  </Step>
+  
+  <Step title="Message attachment">
+    Attach screenshots to messages in the Social Menu
+  </Step>
+</Steps>
+
+### Managing uploads
+
+<Info>
+  View and delete screenshots uploaded to media.essential.gg from the Screenshot Manager.
+</Info>
+
+**Upload management features:**
+- View all uploaded screenshots
+- Copy share links
+- Delete uploads from server
+- Track upload history
+- Monitor storage usage
+
+### Sharing screenshots
+
+**Share via:**
+- Direct link sharing
+- Social Menu messages
+- Discord messages
+- External platforms
+
+**Link features:**
+- Permanent hosting on media.essential.gg
+- Direct image access
+- Embed support
+- No expiration
+
+<Note>
+  You must accept the Terms of Service before uploading screenshots.
+</Note>
+
+## Social menu integration
+
+Screenshots integrate seamlessly with Essential's Social Menu.
+
+### Attaching to messages
+
+- Attach screenshots to friend messages
+- Share directly in group chats
+- Send multiple images at once
+- Automatic thumbnail generation
+
+### Saving shared pictures
+
+- Save pictures shared by friends
+- Download to screenshots folder
+- Preserve original quality
+- Add to your library
+
+### Image embeds
+
+- Updated embed design
+- Better placeholder for failed loads
+- Loading indicators
+- Full resolution preview
+
+## Settings & customization
+
+<AccordionGroup>
+  <Accordion title="Screenshot settings" icon="gear">
+    Configure screenshot behavior in Essential settings:
+    
+    - **Quick action behavior** - What happens after taking a screenshot
+    - **Default action** - Bottom-left quick action (default: Copy Picture)
+    - **Sound effects** - Enable/disable screenshot sound
+    - **Preview duration** - How long preview toast shows
+    - **Auto-favorite** - Automatically favorite screenshots
+  </Accordion>
+  
+  <Accordion title="Keybinds" icon="keyboard">
+    Customize keybinds for quick access:
+    
+    - **Take screenshot** - Capture screen (default: F2)
+    - **Open Screenshot Manager** - Browse screenshots
+    - **Quick upload** - Instant upload last screenshot
+    - **Quick edit** - Edit last screenshot
+  </Accordion>
+  
+  <Accordion title="Privacy" icon="shield">
+    Control screenshot privacy:
+    
+    - **Upload confirmations** - Confirm before uploading
+    - **Link sharing** - Control who can access links
+    - **Terms of service** - Accept before uploading
+    - **Content filtering** - Family-friendly options
+  </Accordion>
+</AccordionGroup>
+
+## Troubleshooting
+
+<Accordion title="Screenshots not appearing">
+  **Solutions:**
+  - Check `.minecraft/screenshots` folder exists
+  - Verify Essential is enabled in settings
+  - Check for resource pack conflicts
+  - Restart Minecraft
+</Accordion>
+
+<Accordion title="Blank screenshots on 1.21.5">
+  **Cause:** Active notifications during capture
+  
+  **Solution:** Update to the latest Essential version where this is fixed
+</Accordion>
+
+<Accordion title="Copy image not working">
+  **Platform-specific fixes:**
+  - **macOS**: Ensure clipboard permissions are granted
+  - **Linux**: May not work reliably with all applications
+  - **Windows**: Usually works without issues
+</Accordion>
+
+<Accordion title="Upload button on toast requires Terms of Service">
+  **Solution:** Accept Essential Terms of Service in settings before uploading
+</Accordion>
+
+## Compatibility
+
+### Mod compatibility
+
+<Check>**Working with:**</Check>
+- VanillaFix (screenshot preview fixed)
+- Shared Resources (browser compatibility)
+- Most graphics mods
+- Resource packs
+
+### Resource pack support
+
+- Custom screenshot sounds supported
+- UI element overrides
+- Texture customization
+- Theme integration
+
+## Best practices
+
+<CardGroup cols={2}>
+  <Card title="Organization" icon="folder-tree">
+    - Use favorites for important screenshots
+    - Regularly review and delete unwanted captures
+    - Organize by world/server for easy finding
+    - Back up important screenshots externally
+  </Card>
+  
+  <Card title="Sharing" icon="share">
+    - Edit screenshots before sharing publicly
+    - Remove sensitive information (coordinates, usernames)
+    - Use appropriate crop for platform
+    - Check image quality before uploading
+  </Card>
+</CardGroup>
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Cosmetics" icon="palette" href="/features/cosmetics">
+    Customize your character appearance in screenshots
+  </Card>
+  
+  <Card title="Social features" icon="comments" href="/features/ui-improvements">
+    Share screenshots with friends via Social Menu
+  </Card>
+</CardGroup>

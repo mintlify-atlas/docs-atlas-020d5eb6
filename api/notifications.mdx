@@ -1,0 +1,387 @@
+---
+title: Notifications API
+description: Display beautiful toast-style notifications to users
+---
+
+The Notifications API provides a simple way to display toast-style notifications that slide in from the bottom-right of the screen, similar to Windows 10 notifications.
+
+## Overview
+
+Notifications appear in the bottom-right corner, sliding out from the right side of the screen. They:
+
+- Last approximately 4 seconds by default
+- Pause when hovered by the user
+- Use Essential's color scheme (Vigilance Palette)
+- Support custom actions when clicked
+- Can include custom components and icons
+
+## Getting the Notifications API
+
+```kotlin
+val notifications = EssentialAPI.getNotifications()
+```
+
+```java
+Notifications notifications = EssentialAPI.getNotifications();
+```
+
+## Basic usage
+
+### Simple notification
+
+Display a basic notification with a title and message:
+
+```kotlin
+EssentialAPI.getNotifications().push(
+    "Success",
+    "Settings saved successfully"
+)
+```
+
+### With custom duration
+
+Specify how long the notification stays visible:
+
+```kotlin
+EssentialAPI.getNotifications().push(
+    "Warning",
+    "Connection unstable",
+    duration = 6f // 6 seconds
+)
+```
+
+### With click action
+
+Execute code when the user clicks the notification:
+
+```kotlin
+EssentialAPI.getNotifications().push(
+    "Friend Online",
+    "PlayerName joined the server"
+) {
+    // Open friends menu when clicked
+    EssentialAPI.getGuiUtil().openScreen(FriendsMenu())
+}
+```
+
+## Advanced usage
+
+### NotificationBuilder
+
+For full control over notification behavior, use the builder pattern:
+
+```kotlin
+EssentialAPI.getNotifications().push(
+    "Update Available",
+    "Version 2.0 is ready to install"
+) {
+    duration = 10f
+    type = NotificationType.INFO
+    trimTitle = false
+    trimMessage = false
+    
+    onAction = {
+        // Install update
+        installUpdate()
+    }
+    
+    onClose = {
+        // Log that user saw the notification
+        logNotificationView()
+    }
+}
+```
+
+## NotificationBuilder properties
+
+<ParamField path="duration" type="Float" default="4.0">
+  How long in seconds the notification stays on screen
+</ParamField>
+
+<ParamField path="onAction" type="() -> Unit" default="{}">
+  Callback invoked when the user clicks the notification
+</ParamField>
+
+<ParamField path="onClose" type="() -> Unit" default="{}">
+  Callback invoked when the notification closes. Called even if `onAction` was triggered.
+</ParamField>
+
+<ParamField path="type" type="NotificationType" default="GENERAL">
+  The notification color scheme. Options: `GENERAL`, `INFO`, `WARNING`, `ERROR`, `DISCORD`
+</ParamField>
+
+<ParamField path="trimTitle" type="Boolean" default="true">
+  Whether to truncate the title at the first line
+</ParamField>
+
+<ParamField path="trimMessage" type="Boolean" default="true">
+  Whether to truncate the message at 3 lines
+</ParamField>
+
+<ParamField path="timerEnabled" type="State<Boolean>">
+  Reactive state controlling whether the notification timer is progressing
+</ParamField>
+
+<ParamField path="uniqueId" type="Any?" default="null">
+  Unique identifier to prevent duplicate notifications. New notifications with the same ID are ignored while the current one is active.
+</ParamField>
+
+<ParamField path="elementaVersion" type="ElementaVersion">
+  Elementa version for custom components
+</ParamField>
+
+<ParamField path="dismissNotification" type="() -> Unit">
+  Function to dismiss the notification with animation
+</ParamField>
+
+<ParamField path="dismissNotificationInstantly" type="() -> Unit">
+  Function to dismiss the notification immediately without animation
+</ParamField>
+
+## Notification types
+
+The `NotificationType` enum controls the notification's color scheme:
+
+```kotlin
+enum class NotificationType {
+    GENERAL,  // Default gray
+    INFO,     // Blue
+    WARNING,  // Yellow/Orange
+    ERROR,    // Red
+    DISCORD   // Discord purple
+}
+```
+
+### Example with types
+
+```kotlin
+// Info notification
+EssentialAPI.getNotifications().push("Info", "Server restarting in 5 minutes") {
+    type = NotificationType.INFO
+}
+
+// Warning notification
+EssentialAPI.getNotifications().push("Warning", "Low disk space") {
+    type = NotificationType.WARNING
+}
+
+// Error notification
+EssentialAPI.getNotifications().push("Error", "Failed to connect") {
+    type = NotificationType.ERROR
+}
+```
+
+## Preventing duplicates
+
+Use `uniqueId` to prevent showing the same notification multiple times:
+
+```kotlin
+// Using an object as unique ID
+object UpdateNotificationId
+
+EssentialAPI.getNotifications().push(
+    "Update Available",
+    "Click to install"
+) {
+    uniqueId = UpdateNotificationId
+}
+
+// Or using a custom data class
+data class NotificationId(val key: String)
+
+EssentialAPI.getNotifications().push(
+    "Message",
+    "You have new messages"
+) {
+    uniqueId = NotificationId("mymod:messages")
+}
+```
+
+<Note>
+  The unique ID must have a proper `hashCode()` and `equals()` implementation. Plain Kotlin objects and data classes work well for this.
+</Note>
+
+<Tip>
+  If using a String as the unique ID, prefix it with your mod ID to avoid conflicts: `"mymodid:notification_type"`
+</Tip>
+
+## Custom components
+
+Add custom Elementa components to notifications:
+
+```kotlin
+import gg.essential.elementa.components.UIImage
+import gg.essential.api.gui.NotificationBuilder
+import gg.essential.api.gui.Slot
+
+EssentialAPI.getNotifications().push(
+    "Achievement",
+    "You found a secret!"
+) {
+    type = NotificationType.INFO
+    elementaVersion = ElementaVersion.V2
+    
+    // Add custom icon
+    val icon = UIImage.ofResource("/assets/mymod/trophy.png")
+    withCustomComponent(Slot.ICON, icon)
+}
+```
+
+### Available slots
+
+<ParamField path="Slot.ICON" type="Slot">
+  Small icon position (same as deprecated PREVIEW)
+</ParamField>
+
+<ParamField path="Slot.SMALL_PREVIEW" type="Slot">
+  Small to mid-sized preview area
+</ParamField>
+
+<ParamField path="Slot.LARGE_PREVIEW" type="Slot">
+  Large preview area
+</ParamField>
+
+<ParamField path="Slot.ACTION" type="Slot">
+  Action button area
+</ParamField>
+
+## Controlling the timer
+
+Pause and resume the notification timer programmatically:
+
+```kotlin
+import gg.essential.elementa.state.BasicState
+
+val timerState = BasicState(true)
+
+EssentialAPI.getNotifications().push(
+    "Paused Notification",
+    "This notification can be paused"
+) {
+    timerEnabled = timerState
+    duration = 10f
+}
+
+// Pause the timer
+timerState.set(false)
+
+// Resume the timer
+timerState.set(true)
+```
+
+## Manual dismissal
+
+Dismiss notifications programmatically:
+
+```kotlin
+EssentialAPI.getNotifications().push(
+    "Processing",
+    "Please wait..."
+) {
+    duration = Float.MAX_VALUE // Don't auto-dismiss
+    
+    // Store dismiss function
+    val dismiss = dismissNotification
+    
+    // Start async task
+    processData { result ->
+        // Dismiss when done
+        dismiss()
+        
+        // Show result
+        EssentialAPI.getNotifications().push(
+            "Complete",
+            "Processing finished: $result"
+        )
+    }
+}
+```
+
+## Complete example
+
+```kotlin
+import gg.essential.api.EssentialAPI
+import gg.essential.api.gui.NotificationType
+import gg.essential.elementa.ElementaVersion
+import gg.essential.elementa.components.UIImage
+import gg.essential.api.gui.Slot
+
+object MyMod {
+    
+    fun notifyFriendOnline(playerName: String) {
+        EssentialAPI.getNotifications().push(
+            "Friend Online",
+            "$playerName is now online"
+        ) {
+            type = NotificationType.INFO
+            duration = 5f
+            
+            onAction = {
+                // Open player profile
+                openPlayerProfile(playerName)
+            }
+            
+            onClose = {
+                // Mark notification as seen
+                markNotificationSeen("friend_online", playerName)
+            }
+            
+            // Prevent spam if player reconnects quickly
+            uniqueId = FriendOnlineId(playerName)
+        }
+    }
+    
+    fun notifyError(message: String) {
+        EssentialAPI.getNotifications().push(
+            "Error",
+            message
+        ) {
+            type = NotificationType.ERROR
+            duration = 8f
+            trimMessage = false // Show full error message
+        }
+    }
+    
+    fun notifyWithProgress(taskName: String): () -> Unit {
+        var dismissFn: (() -> Unit)? = null
+        
+        EssentialAPI.getNotifications().push(
+            taskName,
+            "In progress..."
+        ) {
+            duration = Float.MAX_VALUE
+            dismissFn = dismissNotification
+        }
+        
+        return dismissFn!!
+    }
+    
+    data class FriendOnlineId(val playerName: String)
+}
+
+// Usage
+MyMod.notifyFriendOnline("Steve")
+MyMod.notifyError("Failed to load world")
+
+val dismissTask = MyMod.notifyWithProgress("Downloading")
+// Later...
+dismissTask()
+```
+
+## Best practices
+
+<Tip>
+  Use appropriate notification types (`INFO`, `WARNING`, `ERROR`) to help users quickly understand the importance of the message.
+</Tip>
+
+<Tip>
+  Set `uniqueId` for notifications that might be triggered multiple times to prevent spam.
+</Tip>
+
+<Note>
+  Users can disable notifications in Essential settings via `EssentialConfig.disableAllNotifications`. Always respect this setting.
+</Note>
+
+<Tip>
+  Keep notification messages concise. Use `onAction` callbacks to open detailed screens for more information.
+</Tip>

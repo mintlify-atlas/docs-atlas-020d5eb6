@@ -1,0 +1,432 @@
+---
+title: Dependency injection (DI) system
+description: Access Essential's services and components through dependency injection
+---
+
+Essential uses a dependency injection (DI) system based on [Kodein](https://github.com/kosi-libs/Kodein) to provide access to its services and APIs. This allows you to retrieve instances of Essential's components without manually managing their lifecycle.
+
+## Getting instances
+
+### get
+
+Retrieve an instance from Essential's DI container.
+
+<CodeGroup>
+```kotlin Kotlin
+import gg.essential.api.utils.get
+import gg.essential.api.utils.MinecraftUtils
+import gg.essential.api.utils.mojang.MojangAPI
+
+// Get MinecraftUtils instance
+val minecraftUtils = get<MinecraftUtils>()
+
+// Get MojangAPI instance
+val mojangAPI = get<MojangAPI>()
+
+// Use the instances
+minecraftUtils.sendMessage("Hello!")
+```
+
+```java Java
+import gg.essential.api.DI;
+import gg.essential.api.utils.MinecraftUtils;
+import gg.essential.api.utils.mojang.MojangAPI;
+
+// Get MinecraftUtils instance
+MinecraftUtils minecraftUtils = DI.INSTANCE.get(MinecraftUtils.class);
+
+// Get MojangAPI instance
+MojangAPI mojangAPI = DI.INSTANCE.get(MojangAPI.class);
+
+// Use the instances
+minecraftUtils.sendMessage("Hello!");
+```
+</CodeGroup>
+
+<Note>
+The `get()` function uses Kotlin's reified type parameters, making it very concise in Kotlin code. In Java, use `DI.INSTANCE.get(Class)` instead.
+</Note>
+
+## Checking initialization
+
+### initialised
+
+Check if Essential's DI system has been initialized.
+
+<CodeGroup>
+```kotlin Kotlin
+import gg.essential.api.utils.initialised
+import gg.essential.api.utils.get
+import gg.essential.api.utils.MinecraftUtils
+
+fun safelyAccessDI() {
+    if (initialised) {
+        val minecraftUtils = get<MinecraftUtils>()
+        minecraftUtils.sendMessage("DI is ready!")
+    } else {
+        println("Essential DI not yet initialized")
+    }
+}
+```
+
+```java Java
+import gg.essential.api.utils.DiKt;
+import gg.essential.api.DI;
+import gg.essential.api.utils.MinecraftUtils;
+
+public void safelyAccessDI() {
+    if (DiKt.getInitialised()) {
+        MinecraftUtils minecraftUtils = DI.INSTANCE.get(MinecraftUtils.class);
+        minecraftUtils.sendMessage("DI is ready!");
+    } else {
+        System.out.println("Essential DI not yet initialized");
+    }
+}
+```
+</CodeGroup>
+
+## Available services
+
+You can retrieve any of Essential's API interfaces through the DI system:
+
+### Utility APIs
+
+<CodeGroup>
+```kotlin Kotlin
+import gg.essential.api.utils.*
+import gg.essential.api.utils.mojang.MojangAPI
+
+// Minecraft utilities
+val minecraftUtils = get<MinecraftUtils>()
+
+// Mojang API client
+val mojangAPI = get<MojangAPI>()
+
+// GUI utilities
+val guiUtil = get<GuiUtil>()
+
+// Trusted hosts utility
+val trustedHostsUtil = get<TrustedHostsUtil>()
+
+// Web utilities
+val webUtil = get<WebUtil>()
+```
+
+```java Java
+import gg.essential.api.DI;
+import gg.essential.api.utils.*;
+import gg.essential.api.utils.mojang.MojangAPI;
+
+// Minecraft utilities
+MinecraftUtils minecraftUtils = DI.INSTANCE.get(MinecraftUtils.class);
+
+// Mojang API client
+MojangAPI mojangAPI = DI.INSTANCE.get(MojangAPI.class);
+
+// GUI utilities
+GuiUtil guiUtil = DI.INSTANCE.get(GuiUtil.class);
+
+// Trusted hosts utility
+TrustedHostsUtil trustedHostsUtil = DI.INSTANCE.get(TrustedHostsUtil.class);
+
+// Web utilities
+WebUtil webUtil = DI.INSTANCE.get(WebUtil.class);
+```
+</CodeGroup>
+
+### Profile APIs
+
+<CodeGroup>
+```kotlin Kotlin
+import gg.essential.api.profile.*
+
+// Profile manager
+val profileManager = get<ProfileManager>()
+```
+
+```java Java
+import gg.essential.api.DI;
+import gg.essential.api.profile.ProfileManager;
+
+// Profile manager
+ProfileManager profileManager = DI.INSTANCE.get(ProfileManager.class);
+```
+</CodeGroup>
+
+## Practical examples
+
+### Service wrapper class
+
+<CodeGroup>
+```kotlin Kotlin
+import gg.essential.api.utils.get
+import gg.essential.api.utils.MinecraftUtils
+import gg.essential.api.utils.mojang.MojangAPI
+
+class MyModServices {
+    private val minecraftUtils by lazy { get<MinecraftUtils>() }
+    private val mojangAPI by lazy { get<MojangAPI>() }
+    
+    fun sendWelcomeMessage() {
+        minecraftUtils.sendMessage("Welcome to MyMod!")
+    }
+    
+    suspend fun getPlayerUUID(name: String) {
+        mojangAPI.getUUID(name)?.thenAccept { uuid ->
+            minecraftUtils.sendMessage("UUID: $uuid")
+        }
+    }
+}
+```
+
+```java Java
+import gg.essential.api.DI;
+import gg.essential.api.utils.MinecraftUtils;
+import gg.essential.api.utils.mojang.MojangAPI;
+import java.util.UUID;
+
+public class MyModServices {
+    private MinecraftUtils minecraftUtils;
+    private MojangAPI mojangAPI;
+    
+    public MyModServices() {
+        this.minecraftUtils = DI.INSTANCE.get(MinecraftUtils.class);
+        this.mojangAPI = DI.INSTANCE.get(MojangAPI.class);
+    }
+    
+    public void sendWelcomeMessage() {
+        minecraftUtils.sendMessage("Welcome to MyMod!");
+    }
+    
+    public void getPlayerUUID(String name) {
+        mojangAPI.getUUID(name).thenAccept(uuid -> {
+            minecraftUtils.sendMessage("UUID: " + uuid);
+        });
+    }
+}
+```
+</CodeGroup>
+
+### Lazy initialization
+
+<CodeGroup>
+```kotlin Kotlin
+import gg.essential.api.utils.get
+import gg.essential.api.utils.MinecraftUtils
+
+class MyFeature {
+    // Lazy initialization - only retrieved when first accessed
+    private val minecraftUtils by lazy { get<MinecraftUtils>() }
+    
+    fun enable() {
+        // DI instance retrieved here on first call
+        minecraftUtils.sendMessage("Feature enabled")
+    }
+}
+```
+
+```java Java
+import gg.essential.api.DI;
+import gg.essential.api.utils.MinecraftUtils;
+
+public class MyFeature {
+    private MinecraftUtils minecraftUtils;
+    
+    public void enable() {
+        // Lazy initialization
+        if (minecraftUtils == null) {
+            minecraftUtils = DI.INSTANCE.get(MinecraftUtils.class);
+        }
+        minecraftUtils.sendMessage("Feature enabled");
+    }
+}
+```
+</CodeGroup>
+
+### Error handling
+
+<CodeGroup>
+```kotlin Kotlin
+import gg.essential.api.utils.get
+import gg.essential.api.utils.initialised
+import gg.essential.api.utils.MinecraftUtils
+
+fun safeGetService(): MinecraftUtils? {
+    return try {
+        if (initialised) {
+            get<MinecraftUtils>()
+        } else {
+            println("DI not initialized yet")
+            null
+        }
+    } catch (e: RuntimeException) {
+        println("Failed to get service: ${e.message}")
+        null
+    }
+}
+```
+
+```java Java
+import gg.essential.api.DI;
+import gg.essential.api.utils.DiKt;
+import gg.essential.api.utils.MinecraftUtils;
+
+public MinecraftUtils safeGetService() {
+    try {
+        if (DiKt.getInitialised()) {
+            return DI.INSTANCE.get(MinecraftUtils.class);
+        } else {
+            System.out.println("DI not initialized yet");
+            return null;
+        }
+    } catch (RuntimeException e) {
+        System.out.println("Failed to get service: " + e.getMessage());
+        return null;
+    }
+}
+```
+</CodeGroup>
+
+## How it works
+
+Essential's DI system is built on [Kodein-DI](https://github.com/kosi-libs/Kodein), a dependency injection framework for Kotlin. When you call `get<T>()`, the system:
+
+1. Looks up the requested type in the DI container
+2. Returns an existing instance (singleton) or creates a new one
+3. Throws a `RuntimeException` if the DI system isn't initialized or the type isn't registered
+
+## Best practices
+
+### Use lazy initialization
+
+Avoid calling `get()` during class initialization to prevent issues if DI isn't ready yet:
+
+<CodeGroup>
+```kotlin Kotlin
+// Good - lazy initialization
+class MyClass {
+    private val service by lazy { get<MinecraftUtils>() }
+}
+
+// Bad - eager initialization
+class MyClass {
+    private val service = get<MinecraftUtils>() // May fail if DI not ready
+}
+```
+
+```java Java
+// Good - lazy initialization
+public class MyClass {
+    private MinecraftUtils service;
+    
+    private MinecraftUtils getService() {
+        if (service == null) {
+            service = DI.INSTANCE.get(MinecraftUtils.class);
+        }
+        return service;
+    }
+}
+
+// Bad - eager initialization
+public class MyClass {
+    // May fail if DI not ready when constructor runs
+    private final MinecraftUtils service = DI.INSTANCE.get(MinecraftUtils.class);
+}
+```
+</CodeGroup>
+
+### Check initialization status
+
+For early-loading code, check if DI is ready before accessing it:
+
+<CodeGroup>
+```kotlin Kotlin
+if (initialised) {
+    val service = get<MinecraftUtils>()
+    // Use service
+}
+```
+
+```java Java
+if (DiKt.getInitialised()) {
+    MinecraftUtils service = DI.INSTANCE.get(MinecraftUtils.class);
+    // Use service
+}
+```
+</CodeGroup>
+
+### Reuse instances
+
+Store retrieved instances instead of calling `get()` repeatedly:
+
+<CodeGroup>
+```kotlin Kotlin
+// Good
+class MyClass {
+    private val utils = get<MinecraftUtils>()
+    
+    fun method1() = utils.sendMessage("Hello")
+    fun method2() = utils.isHypixel()
+}
+
+// Less efficient
+class MyClass {
+    fun method1() = get<MinecraftUtils>().sendMessage("Hello")
+    fun method2() = get<MinecraftUtils>().isHypixel()
+}
+```
+
+```java Java
+// Good
+public class MyClass {
+    private final MinecraftUtils utils = DI.INSTANCE.get(MinecraftUtils.class);
+    
+    public void method1() {
+        utils.sendMessage("Hello");
+    }
+    
+    public void method2() {
+        utils.isHypixel();
+    }
+}
+
+// Less efficient
+public class MyClass {
+    public void method1() {
+        DI.INSTANCE.get(MinecraftUtils.class).sendMessage("Hello");
+    }
+    
+    public void method2() {
+        DI.INSTANCE.get(MinecraftUtils.class).isHypixel();
+    }
+}
+```
+</CodeGroup>
+
+## API reference
+
+### Functions
+
+<ResponseField name="get" type="<reified T : Any>() -> T">
+  Retrieve an instance of type T from Essential's DI container. Throws `RuntimeException` if DI is not initialized.
+  
+  **Kotlin only** - uses reified type parameters.
+</ResponseField>
+
+### Properties
+
+<ResponseField name="initialised" type="Boolean">
+  Returns true if Essential's DI system has been initialized and is ready to use.
+  
+  Read-only property.
+</ResponseField>
+
+<ResponseField name="essentialDI" type="gg.essential.api.DI?">
+  The underlying DI container instance. Prefer using `get()` instead of accessing this directly.
+  
+  Throws `RuntimeException` if accessed before initialization.
+</ResponseField>
+
+<Warning>
+Do not attempt to set `essentialDI` in your mod. It is managed internally by Essential and setting it will cause errors.
+</Warning>

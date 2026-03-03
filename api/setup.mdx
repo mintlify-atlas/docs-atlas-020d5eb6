@@ -1,0 +1,345 @@
+---
+title: "API setup"
+description: "Set up your project to use the Essential API"
+icon: "wrench"
+---
+
+Learn how to add the Essential API to your Minecraft mod project and start using Essential's development tools.
+
+## Prerequisites
+
+Before setting up the Essential API, ensure you have:
+
+- A Minecraft mod project using Gradle
+- Java Development Kit (JDK) 8 or higher
+- Basic knowledge of Kotlin or Java
+- Essential mod installed in your development environment
+
+## Setup steps
+
+<Steps>
+  <Step title="Add the Essential API repository">
+    Add the Essential repository to your `build.gradle` or `build.gradle.kts` file:
+
+    **Gradle (Groovy)**
+    ```groovy
+repositories {
+    maven {
+        url = "https://repo.essential.gg/repository/maven-public"
+    }
+}
+    ```
+
+    **Gradle (Kotlin)**
+    ```kotlin
+repositories {
+    maven("https://repo.essential.gg/repository/maven-public")
+}
+    ```
+  </Step>
+
+  <Step title="Add the Essential API dependency">
+    Add the Essential API to your dependencies section:
+
+    **Gradle (Groovy)**
+    ```groovy
+dependencies {
+    // Essential API
+    modApi("gg.essential:essential-$mcVersion-$mcPlatform:+")
+    
+    // Or for a specific version
+    // modApi("gg.essential:essential-1.20.1-fabric:1234")
+}
+    ```
+
+    **Gradle (Kotlin)**
+    ```kotlin
+dependencies {
+    // Essential API
+    modApi("gg.essential:essential-$mcVersion-$mcPlatform:+")
+    
+    // Or for a specific version
+    // modApi("gg.essential:essential-1.20.1-fabric:1234")
+}
+    ```
+
+    Replace `$mcVersion` with your Minecraft version (e.g., `1.20.1`) and `$mcPlatform` with your mod loader (`fabric`, `forge`, or `neoforge`).
+
+    <Note>
+      The Essential API artifact name follows the pattern: `essential-<mc-version>-<platform>`
+    </Note>
+  </Step>
+
+  <Step title="Add required dependencies">
+    The Essential API requires several libraries. Add them to your dependencies:
+
+    **Gradle (Kotlin)**
+    ```kotlin
+dependencies {
+    // Kotlin standard library
+    api("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.0")
+    api("org.jetbrains.kotlin:kotlin-reflect:1.8.0")
+    
+    // Kotlin coroutines
+    api("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
+    api("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.6.4")
+    
+    // Dependency injection
+    api("org.kodein.di:kodein-di-jvm:7.6.0")
+    
+    // GUI libraries (if using Essential's GUI components)
+    modApi("gg.essential:elementa-$mcVersion-$mcPlatform:+")
+}
+    ```
+
+    <Warning>
+      Version numbers should match what Essential uses. Check the Essential API `build.gradle.kts` for the exact versions.
+    </Warning>
+  </Step>
+
+  <Step title="Configure Kotlin (if not already configured)">
+    If your project doesn't already use Kotlin, add the Kotlin plugin:
+
+    **Gradle (Kotlin)**
+    ```kotlin
+plugins {
+    kotlin("jvm") version "1.8.0"
+}
+    ```
+
+    **Gradle (Groovy)**
+    ```groovy
+plugins {
+    id 'org.jetbrains.kotlin.jvm' version '1.8.0'
+}
+    ```
+  </Step>
+
+  <Step title="Sync your project">
+    Refresh your Gradle project to download the dependencies:
+
+    ```bash
+    ./gradlew --refresh-dependencies
+    ```
+
+    Or use your IDE's Gradle refresh function.
+  </Step>
+
+  <Step title="Verify the setup">
+    Create a test class to verify the API is accessible:
+
+    **Kotlin**
+    ```kotlin
+import gg.essential.api.EssentialAPI
+
+class EssentialTest {
+    fun test() {
+        val api = EssentialAPI.getInstance()
+        println("Essential API loaded successfully!")
+        
+        // Test notifications
+        api.notifications().push(
+            "Test",
+            "Essential API is working!"
+        )
+    }
+}
+    ```
+
+    **Java**
+    ```java
+import gg.essential.api.EssentialAPI;
+
+public class EssentialTest {
+    public void test() {
+        EssentialAPI api = EssentialAPI.getInstance();
+        System.out.println("Essential API loaded successfully!");
+        
+        // Test notifications
+        api.getNotifications().push(
+            "Test",
+            "Essential API is working!"
+        );
+    }
+}
+    ```
+  </Step>
+</Steps>
+
+## Using dependency injection
+
+Essential provides a dependency injection system powered by Kodein. You can use it to get API instances:
+
+```kotlin
+import gg.essential.api.EssentialAPI
+import gg.essential.api.utils.get
+
+// Get API instance via DI
+val api: EssentialAPI = get()
+
+// Get specific services
+val notifications = get<Notifications>()
+val commandRegistry = get<CommandRegistry>()
+```
+
+The DI system is particularly useful for larger projects with many components that need access to Essential's APIs.
+
+## Development environment setup
+
+### Running with Essential
+
+Ensure Essential is present in your development environment:
+
+1. Download Essential from [essential.gg](https://essential.gg)
+2. Place the Essential jar in your `run/mods` folder
+3. Launch your development environment
+
+### Testing your integration
+
+Create a simple command to test your setup:
+
+```kotlin
+import gg.essential.api.commands.Command
+import gg.essential.api.commands.DefaultHandler
+import gg.essential.api.EssentialAPI
+
+class TestCommand : Command("testapi") {
+    @DefaultHandler
+    fun handle() {
+        EssentialAPI.getNotifications().push(
+            "Test Command",
+            "Your Essential API integration is working!"
+        )
+    }
+}
+
+// Register the command
+fun init() {
+    TestCommand().register()
+}
+```
+
+Run `/testapi` in-game to verify everything works.
+
+## Platform-specific notes
+
+### Fabric
+
+For Fabric mods, you may need to include Essential as a dependency in your `fabric.mod.json`:
+
+```json
+{
+  "depends": {
+    "essential": "*"
+  }
+}
+```
+
+### Forge
+
+For Forge mods, add Essential as a dependency in your `mods.toml`:
+
+```toml
+[[dependencies.yourmodid]]
+    modId = "essential"
+    mandatory = true
+    versionRange = "[1.0.0,)"
+    ordering = "AFTER"
+    side = "CLIENT"
+```
+
+### NeoForge
+
+For NeoForge mods, add Essential as a dependency in your `neoforge.mods.toml`:
+
+```toml
+[[dependencies.yourmodid]]
+    modId = "essential"
+    type = "required"
+    versionRange = "[1.0.0,)"
+    ordering = "AFTER"
+    side = "CLIENT"
+```
+
+## Common issues
+
+<AccordionGroup>
+  <Accordion title="ClassNotFoundException: gg.essential.api.EssentialAPI">
+    This means the Essential API is not on your classpath. Verify:
+    - You've added the repository correctly
+    - The dependency is specified with the correct version and platform
+    - You've refreshed Gradle dependencies
+    - Essential is installed in your development environment
+  </Accordion>
+
+  <Accordion title="NoClassDefFoundError: kotlin/jvm/internal/Intrinsics">
+    This means Kotlin runtime is missing. Add the Kotlin standard library to your dependencies:
+    ```kotlin
+    api("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.0")
+    ```
+  </Accordion>
+
+  <Accordion title="RuntimeException: DI not initialised!">
+    This error occurs when trying to use dependency injection before Essential has loaded. Options:
+    - Use `EssentialAPI.getInstance()` instead of DI
+    - Ensure your code runs after Essential has initialized (e.g., in a late initialization phase)
+    - Check that Essential is actually loaded
+  </Accordion>
+
+  <Accordion title="Version conflicts with Essential's dependencies">
+    If you encounter version conflicts with libraries that Essential bundles:
+    - Check Essential's `build.gradle.kts` for the exact versions it uses
+    - Align your versions with Essential's
+    - Use Gradle's dependency resolution strategies if needed
+  </Accordion>
+</AccordionGroup>
+
+## Example project structure
+
+Here's a minimal example of a `build.gradle.kts` for a Fabric mod using the Essential API:
+
+```kotlin
+plugins {
+    kotlin("jvm") version "1.8.0"
+    id("fabric-loom") version "1.2-SNAPSHOT"
+}
+
+group = "com.example"
+version = "1.0.0"
+
+repositories {
+    mavenCentral()
+    maven("https://repo.essential.gg/repository/maven-public")
+}
+
+dependencies {
+    minecraft("com.mojang:minecraft:1.20.1")
+    mappings("net.fabricmc:yarn:1.20.1+build.10:v2")
+    modImplementation("net.fabricmc:fabric-loader:0.14.21")
+    
+    // Kotlin
+    api("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.0")
+    
+    // Essential API
+    modApi("gg.essential:essential-1.20.1-fabric:+")
+    
+    // Dependency injection
+    api("org.kodein.di:kodein-di-jvm:7.6.0")
+}
+
+kotlin {
+    jvmToolchain(17)
+}
+```
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="API overview" icon="book" href="/api/overview">
+    Learn about all available APIs and their features
+  </Card>
+  
+  <Card title="Essential source code" icon="github" href="https://github.com/EssentialGG/Essential">
+    Browse the full source code on GitHub
+  </Card>
+</CardGroup>

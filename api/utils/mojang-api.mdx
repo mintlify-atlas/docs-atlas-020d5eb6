@@ -1,0 +1,336 @@
+---
+title: MojangAPI utilities
+description: Interact with the Mojang API to fetch player data, profiles, and manage skins
+---
+
+The `MojangAPI` utility provides methods for interacting with the [Mojang API](https://wiki.vg/Mojang_API) to fetch player information, profiles, and manage skins.
+
+## Accessing MojangAPI
+
+Get an instance using dependency injection:
+
+<CodeGroup>
+```kotlin Kotlin
+import gg.essential.api.utils.mojang.MojangAPI
+import gg.essential.api.utils.get
+
+val mojangAPI = get<MojangAPI>()
+```
+
+```java Java
+import gg.essential.api.utils.mojang.MojangAPI;
+import gg.essential.api.DI;
+
+MojangAPI mojangAPI = DI.INSTANCE.get(MojangAPI.class);
+```
+</CodeGroup>
+
+## Player lookups
+
+### getUUID
+
+Get a player's UUID from their username.
+
+<CodeGroup>
+```kotlin Kotlin
+import java.util.UUID
+
+val future = mojangAPI.getUUID("Notch")
+future?.thenAccept { uuid ->
+    println("UUID: $uuid")
+}
+```
+
+```java Java
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+
+CompletableFuture<UUID> future = mojangAPI.getUUID("Notch");
+if (future != null) {
+    future.thenAccept(uuid -> {
+        System.out.println("UUID: " + uuid);
+    });
+}
+```
+</CodeGroup>
+
+### getName
+
+Get a player's current username from their UUID.
+
+<CodeGroup>
+```kotlin Kotlin
+import java.util.UUID
+
+val uuid = UUID.fromString("069a79f4-44e9-4726-a5be-fca90e38aaf5")
+val future = mojangAPI.getName(uuid)
+future?.thenAccept { name ->
+    println("Username: $name")
+}
+```
+
+```java Java
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+
+UUID uuid = UUID.fromString("069a79f4-44e9-4726-a5be-fca90e38aaf5");
+CompletableFuture<String> future = mojangAPI.getName(uuid);
+if (future != null) {
+    future.thenAccept(name -> {
+        System.out.println("Username: " + name);
+    });
+}
+```
+</CodeGroup>
+
+## Profile data
+
+### getProfile
+
+Get a complete player profile including skin and cape information.
+
+<CodeGroup>
+```kotlin Kotlin
+import gg.essential.api.utils.mojang.Profile
+import java.util.UUID
+
+val uuid = UUID.fromString("069a79f4-44e9-4726-a5be-fca90e38aaf5")
+val profile = mojangAPI.getProfile(uuid)
+
+if (profile != null) {
+    println("Name: ${profile.name}")
+    println("ID: ${profile.id}")
+    
+    // Access textures
+    val textures = profile.textures
+    val skinUrl = textures.textures?.skin?.url
+    val capeUrl = textures.textures?.cape?.url
+    
+    println("Skin: $skinUrl")
+    if (capeUrl != null) {
+        println("Cape: $capeUrl")
+    }
+}
+```
+
+```java Java
+import gg.essential.api.utils.mojang.Profile;
+import gg.essential.api.utils.mojang.ProfileTextures;
+import java.util.UUID;
+
+UUID uuid = UUID.fromString("069a79f4-44e9-4726-a5be-fca90e38aaf5");
+Profile profile = mojangAPI.getProfile(uuid);
+
+if (profile != null) {
+    System.out.println("Name: " + profile.getName());
+    System.out.println("ID: " + profile.getId());
+    
+    // Access textures
+    ProfileTextures textures = profile.getTextures();
+    String skinUrl = textures.getTextures().getSkin().getUrl();
+    
+    System.out.println("Skin: " + skinUrl);
+    if (textures.getTextures().getCape() != null) {
+        System.out.println("Cape: " + textures.getTextures().getCape().getUrl());
+    }
+}
+```
+</CodeGroup>
+
+## Skin management
+
+### changeSkin
+
+Change a player's skin using their session token.
+
+<CodeGroup>
+```kotlin Kotlin
+import gg.essential.api.utils.mojang.Model
+import gg.essential.api.utils.mojang.SkinResponse
+import java.util.UUID
+
+val accessToken = "player_session_token"
+val uuid = UUID.fromString("069a79f4-44e9-4726-a5be-fca90e38aaf5")
+val skinUrl = "https://example.com/skin.png"
+
+val response = mojangAPI.changeSkin(
+    accessToken,
+    uuid,
+    Model.STEVE,
+    skinUrl
+)
+
+if (response != null) {
+    println("Skin changed successfully!")
+    println("Response: ${response.id}")
+}
+```
+
+```java Java
+import gg.essential.api.utils.mojang.Model;
+import gg.essential.api.utils.mojang.SkinResponse;
+import java.util.UUID;
+
+String accessToken = "player_session_token";
+UUID uuid = UUID.fromString("069a79f4-44e9-4726-a5be-fca90e38aaf5");
+String skinUrl = "https://example.com/skin.png";
+
+SkinResponse response = mojangAPI.changeSkin(
+    accessToken,
+    uuid,
+    Model.STEVE,
+    skinUrl
+);
+
+if (response != null) {
+    System.out.println("Skin changed successfully!");
+    System.out.println("Response: " + response.getId());
+}
+```
+</CodeGroup>
+
+<Note>
+After successfully changing a skin, the player must disconnect from their current server and reconnect to see the changes.
+</Note>
+
+## Data types
+
+### Profile
+
+Player profile data from the Mojang API.
+
+<ResponseField name="id" type="String?">
+  Player UUID as a string without dashes.
+</ResponseField>
+
+<ResponseField name="name" type="String?">
+  Player's current username.
+</ResponseField>
+
+<ResponseField name="properties" type="List<Property>?">
+  Profile properties containing encoded texture data.
+</ResponseField>
+
+<ResponseField name="textures" type="ProfileTextures">
+  Decoded skin and cape information (computed property).
+</ResponseField>
+
+### ProfileTextures
+
+Decoded texture information for a player.
+
+<ResponseField name="timestamp" type="Long?">
+  Timestamp of when the profile was fetched.
+</ResponseField>
+
+<ResponseField name="profileId" type="String?">
+  Player's UUID.
+</ResponseField>
+
+<ResponseField name="profileName" type="String?">
+  Player's username.
+</ResponseField>
+
+<ResponseField name="textures" type="Textures?">
+  Skin and cape texture URLs.
+</ResponseField>
+
+### Textures
+
+Skin and cape texture URLs.
+
+<ResponseField name="skin" type="TextureURL?">
+  Player's skin texture.
+</ResponseField>
+
+<ResponseField name="cape" type="TextureURL?">
+  Player's cape texture (if they have one).
+</ResponseField>
+
+### Model
+
+Skin model type enumeration.
+
+<ResponseField name="STEVE" type="Model">
+  Classic/default skin model with 4-pixel wide arms.
+</ResponseField>
+
+<ResponseField name="ALEX" type="Model">
+  Slim skin model with 3-pixel wide arms.
+</ResponseField>
+
+#### Model methods
+
+<CodeGroup>
+```kotlin Kotlin
+// Get model by internal type
+val model = Model.byType("slim") // ALEX
+
+// Get model by variant (Mojang API name)
+val model2 = Model.byVariant("classic") // STEVE
+
+// With default fallback
+val model3 = Model.byTypeOrDefault("unknown") // STEVE
+val model4 = Model.byVariantOrDefault("invalid") // STEVE
+```
+
+```java Java
+// Get model by internal type
+Model model = Model.byType("slim"); // ALEX
+
+// Get model by variant (Mojang API name)
+Model model2 = Model.byVariant("classic"); // STEVE
+
+// With default fallback
+Model model3 = Model.byTypeOrDefault("unknown"); // STEVE
+Model model4 = Model.byVariantOrDefault("invalid"); // STEVE
+```
+</CodeGroup>
+
+### SkinResponse
+
+Response from a skin change request.
+
+<ResponseField name="id" type="String">
+  Response identifier.
+</ResponseField>
+
+<ResponseField name="name" type="String">
+  Player's username.
+</ResponseField>
+
+<ResponseField name="skins" type="List<Skin>?">
+  List of player's skins.
+</ResponseField>
+
+<ResponseField name="capes" type="List<Skin>">
+  List of player's capes.
+</ResponseField>
+
+## API reference
+
+### Methods
+
+<ResponseField name="getUUID" type="(name: String) -> CompletableFuture<UUID>?">
+  Get a player's UUID from their username. Returns null if the request fails.
+  
+  See [wiki.vg documentation](https://wiki.vg/Mojang_API#Username_to_UUID).
+</ResponseField>
+
+<ResponseField name="getName" type="(uuid: UUID) -> CompletableFuture<String>?">
+  Get a player's username from their UUID. Returns null if the request fails.
+  
+  See [wiki.vg documentation](https://wiki.vg/Mojang_API#Usernames_to_UUIDs).
+</ResponseField>
+
+<ResponseField name="getProfile" type="(uuid: UUID) -> Profile?">
+  Get the complete player profile including skin and cape data. Returns null if the request fails.
+  
+  See [wiki.vg documentation](https://wiki.vg/Mojang_API#UUID_to_Profile_and_Skin.2FCape).
+</ResponseField>
+
+<ResponseField name="changeSkin" type="(accessToken: String, uuid: UUID, model: Model, url: String) -> SkinResponse?">
+  Send a skin change request. Requires a valid session token for authentication. Returns null if the request fails.
+  
+  See [wiki.vg documentation](https://wiki.vg/Mojang_API#Change_Skin).
+</ResponseField>

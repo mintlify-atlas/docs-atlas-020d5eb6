@@ -1,0 +1,163 @@
+---
+title: Verifying checksums
+description: Learn how to verify the authenticity of Essential files using checksums
+---
+
+This guide explains how to verify checksums of Essential-related files in your `.minecraft` folder to ensure their authenticity.
+
+## Overview
+
+Essential provides checksums for all builds through GitHub Actions, allowing you to verify that the files on your system match the official releases. This is important for security and ensuring you're running authentic Essential files.
+
+<Info>
+Every Essential release is built twice: once by Essential's internal CI system and once on GitHub-provided runners. The GitHub build verifies that the published source code produces bit-for-bit identical files.
+</Info>
+
+## Getting checksums
+
+You have two options for obtaining checksums:
+
+<Steps>
+  <Step title="Option 1: Build from source">
+    [Build Essential](/building) from source for the version you want to verify. The built files will be available in the repository for direct comparison.
+  </Step>
+  
+  <Step title="Option 2: Download from GitHub Actions">
+    1. Find the corresponding GitHub Actions run for your Essential version
+    2. Download the `checksums` text file from the artifacts
+    3. Or view the `Generate checksums` log section of the `build` job
+  </Step>
+</Steps>
+
+<Note>
+GitHub automatically deletes Actions logs and artifacts after some time, so older versions may not have checksums available through GitHub Actions.
+</Note>
+
+## Identifying file types
+
+Before verifying, you need to identify which type of Essential file you have. Use the sections below to determine the file type and its corresponding location in the repository.
+
+### Files in `.minecraft/mods`
+
+**Small files (< 1 MB)**
+
+- These are Essential Container files
+- Typically include Minecraft version but not Essential version in the name
+- Find the corresponding platform (fabric, launchwrapper, modlauncher8, or modlauncher9)
+- Compare with: `loader/container/<platform>/build/libs/`
+
+**Large files (> 1 MB)**
+
+- These are "pinned" mod files
+- Typically include both Minecraft and Essential version in the name
+- Compare with: `versions/<MC-Version>/build/libs/pinned_*.jar`
+
+### Files in `.minecraft/essential`
+
+**Format: `Essential (<Mod-Loader>_<MC-Version>).jar`**
+
+- This is the main Essential jar file
+- Compare with: `versions/<MC-Version>/build/libs/Essential*.jar` (not the `pinned_` file)
+
+**Format: `Essential (<Mod-Loader>_<MC-Version>).processed.jar`**
+
+- This is a temporary file derived from the main Essential jar
+- It's automatically regenerated from the non-processed file on launch
+- You can delete it and verify the source file instead
+
+### Files in `.minecraft/essential/libraries`
+
+- These are extracted from the main Essential jar's `META-INF/jars/` folder
+- They are recursively extracted from nested jars
+- If deleted, they will be re-extracted on next launch
+- Verify the parent Essential jar instead
+
+### Files in `.minecraft/essential/loader`
+
+**File: `stage1.jar`**
+
+- Extracted from either the container mod or the main Essential jar (whichever is newer)
+- Compare with: `loader/stage1/<platform>/build/libs/`
+- Platform is one of: fabric, launchwrapper, modlauncher8, modlauncher9
+
+**File: `stage2.<Mod-Loader>_<MC-Version>.jar`**
+
+- Compare with: `loader/stage2/<platform>/build/libs/`
+- May not be updated in lockstep with Essential versions
+- Check the accompanying `.meta` file for version information
+- Despite being in the `stage1` folder, this is stage2 of the loader (stage1 loads it)
+
+## Verifying checksums
+
+<Steps>
+  <Step title="Identify the file type">
+    Use the sections above to identify which type of Essential file you're verifying and its corresponding path in the repository.
+  </Step>
+  
+  <Step title="Get the checksum">
+    If you built from source, you can compare files directly. If using GitHub Actions checksums, note the SHA-256 hash for your file.
+  </Step>
+  
+  <Step title="Calculate local checksum">
+    Use a checksum tool to generate the SHA-256 hash of your local file:
+    
+    **Linux/macOS:**
+    ```bash
+    sha256sum /path/to/file
+    ```
+    
+    **Windows (PowerShell):**
+    ```powershell
+    Get-FileHash -Algorithm SHA256 /path/to/file
+    ```
+  </Step>
+  
+  <Step title="Compare checksums">
+    Compare the calculated checksum with the one from GitHub Actions or the built file. They should match exactly.
+  </Step>
+</Steps>
+
+## Important notes
+
+<Warning>
+Not all files in your `.minecraft` folder are updated at the same time. Some files may be from older Essential versions.
+</Warning>
+
+### Version compatibility
+
+Some Essential versions are compatible with multiple Minecraft versions. Check `versions/aliases.txt` in the repository for exact mappings, or compare with nearby Minecraft versions.
+
+### Pinned jar verification
+
+The CI system doesn't upload checksums for pinned jars (Modrinth/CurseForge versions) separately because they are deterministically derived from the main jars. Verifying the main jar is sufficient. However, pinned jar checksums are printed in the public GitHub Actions logs for third-party verification.
+
+### Older installations
+
+If your Essential installation is old, some files may be from before:
+- Source code was made publicly accessible
+- Builds were deterministic
+
+<Info>
+If you have older files and are concerned about their authenticity, please contact Essential support through their [Discord](https://essential.gg/discord).
+</Info>
+
+## Troubleshooting
+
+**Checksums don't match**
+
+- Verify you're comparing against the correct Essential version
+- Check if the file is from an older version
+- Ensure you're using the correct file type and path
+- Re-download Essential from official sources
+
+**Can't find GitHub Actions artifacts**
+
+- GitHub deletes old artifacts automatically
+- Build from source instead to verify older versions
+- Check the public logs for checksum information
+
+**Multiple versions in `.minecraft`**
+
+- This is normal - files update at different times
+- Verify each file against its respective version
+- Check file modification dates to determine versions

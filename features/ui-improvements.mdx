@@ -1,0 +1,609 @@
+---
+title: UI improvements
+description: Discover Essential's redesigned user interface, social features, and quality of life enhancements for Minecraft
+icon: window-maximize
+---
+
+Essential completely redesigns Minecraft's user interface with modern menus, social features, account management, and numerous quality of life improvements.
+
+## Quick overview
+
+<CardGroup cols={2}>
+  <Card title="Modern UI" icon="desktop">
+    Completely redesigned menus with improved layouts and aesthetics
+  </Card>
+  
+  <Card title="Social menu" icon="comments">
+    Message friends, share media, and organize groups in-game
+  </Card>
+  
+  <Card title="Account switcher" icon="users">
+    Quickly switch between multiple Minecraft accounts
+  </Card>
+  
+  <Card title="Notifications" icon="bell">
+    Smart notification system for events, updates, and friends
+  </Card>
+</CardGroup>
+
+## Redesigned menus
+
+### Title screen
+
+<Tabs>
+  <Tab title="Layout">
+    ### Title screen improvements
+    
+    Essential enhances the main menu with:
+    
+    - **Improved button layout** - Better organized and spaced
+    - **Essential buttons** - Quick access to features
+    - **Friend indicators** - See online friends at a glance
+    - **NEW indicator** - Highlights new content and updates
+    - **Modern aesthetics** - Clean, polished design
+    
+    <Note>
+      The condensed variant of the full title screen layout has been removed in favor of a unified, improved design.
+    </Note>
+  </Tab>
+  
+  <Tab title="Customization">
+    ### Button appearance
+    
+    Control how Essential buttons look:
+    
+    - **Use Minecraft button texture** - Match vanilla style
+    - **Resource pack support** - Override button textures
+    - **Animated textures** - Supports animated button textures
+    - **Nine-slice textures** - Proper texture scaling
+    
+    <Info>
+      Essential buttons now support animated and nine-slice textures when "Use Minecraft button texture" is enabled.
+    </Info>
+  </Tab>
+  
+  <Tab title="Compatibility">
+    ### Mod compatibility
+    
+    Essential works with popular menu mods:
+    
+    - **Fancy Menu** - Full compatibility for title and pause screens
+    - **Custom Main Menu** - Essential shows correctly
+    - **Mod Menu** (Fabric) - Essential logo displays properly
+    
+    <Note>
+      Fancy Menu can now modify Essential's title and pause screens. Ensure you're using compatible versions.
+    </Note>
+  </Tab>
+</Tabs>
+
+### Pause menu
+
+Essential enhances the in-game pause menu:
+
+- **Essential button** - Quick access to features during gameplay
+- **Host World** - Invite friends while playing
+- **Screenshot Manager** - View recent screenshots
+- **Settings access** - Adjust Essential settings on the fly
+
+<Info>
+  Essential's Pause Menu no longer incorrectly appears in Minecraft's Game Paused menu on 1.17+.
+</Info>
+
+### Settings menu
+
+<AccordionGroup>
+  <Accordion title="Layout improvements" icon="table-layout">
+    Settings have been completely redesigned:
+    
+    - **Updated layout** - All settings reorganized for clarity
+    - **Updated names** - Clearer setting names
+    - **Updated descriptions** - Better explanations
+    - **Categorization** - Grouped by feature area
+    - **Search function** - Find settings quickly
+  </Accordion>
+  
+  <Accordion title="Toggle switches" icon="toggle-on">
+    Modern toggle switch design:
+    
+    - **Improved design** - Better visual appearance
+    - **Smooth animations** - Polished toggle animations
+    - **Clear states** - Obvious on/off indication
+    - **Accessible** - Better usability
+  </Accordion>
+  
+  <Accordion title="Essential controls" icon="sliders">
+    Key Essential settings:
+    
+    - **Disable Essential entirely** - Master on/off switch
+    - **Cosmetics toggle** - Enable/disable cosmetics
+    - **Screenshot settings** - Configure screenshot behavior
+    - **Privacy controls** - Manage privacy preferences
+    - **Keybind configuration** - Customize all keybinds
+    
+    <Note>
+      The Essential button position in settings menu with NoChatReports mod has been fixed.
+    </Note>
+  </Accordion>
+</AccordionGroup>
+
+## Social menu
+
+The Social Menu is Essential's built-in messaging and social platform.
+
+### Messaging features
+
+<Tabs>
+  <Tab title="Chat interface">
+    ### Redesigned messaging
+    
+    The Social Menu has received major updates:
+    
+    - **Redesigned message input** - Better text field design
+    - **Reply banner** - Cleaner reply interface
+    - **Message editing** - Edit sent messages
+    - **Timestamp display** - Last message sent time in chat list
+    - **Updated message colors** - Better sent message background
+    - **Improved link colors** - More visible links
+    
+    <Info>
+      Messages can now be edited after sending. Look for the edit option on your sent messages.
+    </Info>
+  </Tab>
+  
+  <Tab title="Replies & threading">
+    ### Reply system
+    
+    Respond to specific messages:
+    
+    - **Reply button** - Click to reply to any message
+    - **Reply banner** - See what you're replying to
+    - **Thread context** - Keep conversations organized
+    - **Quick replies** - Streamlined reply workflow
+  </Tab>
+  
+  <Tab title="Performance">
+    ### Optimization
+    
+    Social Menu performance improvements:
+    
+    - **Long message handling** - Fixed performance with long messages
+    - **Image resizing** - Correctly resizes after window resize
+    - **Efficient rendering** - Smoother scrolling and display
+    - **Memory optimization** - Better resource usage
+    
+    <Note>
+      Bad performance related to long messages in the Social Menu has been fixed.
+    </Note>
+  </Tab>
+</Tabs>
+
+### Media sharing
+
+<AccordionGroup>
+  <Accordion title="Screenshot attachments" icon="paperclip">
+    Share screenshots in messages:
+    
+    - **Attach to messages** - Send screenshots to friends
+    - **Multiple attachments** - Send several images at once
+    - **Thumbnail preview** - See images before sending
+    - **Full resolution** - Share original quality
+  </Accordion>
+  
+  <Accordion title="Image embeds" icon="image">
+    Rich image display:
+    
+    - **Updated embed design** - Better visual presentation
+    - **Better placeholders** - Improved loading indicators
+    - **Save shared pictures** - Download friends' images
+    - **Full-size preview** - Click to view full resolution
+    
+    <Info>
+      Failed image loads now show appropriate placeholders instead of "Failed to load image" errors for successful non-image links.
+    </Info>
+  </Accordion>
+  
+  <Accordion title="Link handling" icon="link">
+    Smart link processing:
+    
+    - **Ignore wrapped links** - Links in `<>` aren't embedded (e.g., `<https://essential.gg>`)
+    - **Confirmation modal** - Confirm before opening untrusted links
+    - **Embed preview** - See link previews inline
+    - **Broken embed removal** - Third-party broken embeds removed
+  </Accordion>
+</AccordionGroup>
+
+### Friends & groups
+
+<Tabs>
+  <Tab title="Friend management">
+    ### Managing friends
+    
+    - **Add Friend modal** - Improved design with longer username support
+    - **Friend indicators** - Muted indicator on chat list
+    - **Online status** - See who's online
+    - **Friend notifications** - Updated "Friend online" notification
+    
+    <Note>
+      The keybind for adding the player you're looking at as a friend has been removed.
+    </Note>
+  </Tab>
+  
+  <Tab title="Groups">
+    ### Group features
+    
+    - **Make group modal** - Enhanced with better information
+    - **Group chat** - Message multiple friends
+    - **Muted indicators** - See muted groups in chat list
+    - **Group management** - Add/remove members easily
+  </Tab>
+  
+  <Tab title="Privacy & safety">
+    ### User controls
+    
+    - **Muting** - Mute users or groups
+    - **Blocking** - Block unwanted users
+    - **Reporting** - Report inappropriate behavior
+    - **Suspension indicators** - See when users are suspended
+    
+    <Info>
+      After reporting a user, a modal appears to mute or block them. Successful mutes now show confirmation notifications.
+    </Info>
+  </Tab>
+</Tabs>
+
+### Safety features
+
+<AccordionGroup>
+  <Accordion title="Community rules" icon="book">
+    Essential enforces community standards:
+    
+    - **Community Rules modal** - Must accept before using social features
+    - **Terms of Use** - Updated modal design
+    - **Privacy Policy** - Improved presentation
+    - **Rule enforcement** - Suspension system for violations
+  </Accordion>
+  
+  <Accordion title="Reporting system" icon="flag">
+    Improved reporting:
+    
+    - **Enhanced reporting modal** - Better reporting interface
+    - **Post-report actions** - Mute/block after reporting
+    - **Suspension communication** - Clear suspension reasons and duration
+    - **Appeal process** - Information on appeals
+  </Accordion>
+  
+  <Accordion title="Suspended users" icon="ban">
+    Suspension handling:
+    
+    - **Suspension modals** - See why and how long suspended
+    - **Cannot talk indicators** - See when you can't message suspended users
+    - **Clear communication** - Understand suspension terms
+    - **Duration display** - Know when suspension ends
+  </Accordion>
+</AccordionGroup>
+
+## Account management
+
+### Account switcher
+
+<Tabs>
+  <Tab title="Using account switcher">
+    ### Quick account switching
+    
+    - **New account switcher modal** - Modern design
+    - **Loading screen** - Shows while switching accounts
+    - **Multiple accounts** - Manage all your accounts
+    - **Scrollbar** - Navigate long account lists
+    - **Avatar display** - See account skins
+    
+    <Info>
+      A scrollbar has been added to the account switcher for users with many accounts.
+    </Info>
+  </Tab>
+  
+  <Tab title="Adding accounts">
+    ### Account management
+    
+    - **Add accounts** - Sign in to multiple Microsoft accounts
+    - **Remove accounts** - Delete saved accounts
+    - **Default account** - Set primary account
+    - **Quick switch** - One-click account changing
+  </Tab>
+  
+  <Tab title="Session handling">
+    ### Session management
+    
+    - **Invalid Session screen** - Appears when session expires
+    - **Refresh session button** - Quickly refresh without restart
+    - **Automatic detection** - Detects expired sessions
+    - **Re-authentication** - Easy re-login process
+  </Tab>
+</Tabs>
+
+### Discord integration
+
+<Info>
+  Discord usernames are now handled correctly for users who migrated to Discord's new username system.
+</Info>
+
+**Discord features:**
+- Activity status display
+- Username synchronization  
+- Invite integration
+- Discord cape unlock
+
+## Notifications system
+
+### Notification types
+
+<AccordionGroup>
+  <Accordion title="Friend notifications" icon="user-plus">
+    Stay updated on friend activity:
+    
+    - **Friend online** - Updated notification design
+    - **Friend requests** - Accept/decline notifications
+    - **World invites** - Join hosted worlds
+    - **Messages** - New message alerts
+  </Accordion>
+  
+  <Accordion title="System notifications" icon="bell">
+    Essential system alerts:
+    
+    - **Update notifications** - New version available
+    - **Changelog display** - After version updates
+    - **NEW indicator** - New content on main menu
+    - **Purchase notifications** - Improved purchase alerts
+    - **Gift notifications** - Received cosmetic gifts
+  </Accordion>
+  
+  <Accordion title="Custom notifications" icon="circle-info">
+    Specialized alerts:
+    
+    - **Single character messages** - Now display correctly
+    - **Announcement edits** - No extra toast on edits
+    - **Mute confirmations** - Successful mute notifications
+    - **Error messages** - Clear error communication
+  </Accordion>
+</AccordionGroup>
+
+### Notification settings
+
+- **Enable/disable** - Toggle notification types
+- **Sound settings** - Notification sound controls
+- **Display duration** - How long notifications show
+- **Position** - Where notifications appear
+
+<Note>
+  Toasts no longer block access to the Wardrobe via keybind when cosmetics are disabled.
+</Note>
+
+## Modals & dialogs
+
+### Improved modals
+
+<Tabs>
+  <Tab title="Design updates">
+    ### Modal improvements
+    
+    - **Improved modal design** - Better visual appearance
+    - **Fade-in transitions** - Smooth animations (fixed on some systems)
+    - **Keyboard support** - Enter key confirmation on text modals
+    - **Consistent styling** - Unified design language
+  </Tab>
+  
+  <Tab title="Information modals">
+    ### Empty state modals
+    
+    Added helpful information to empty modals:
+    
+    - **Friend invite modal** - Shows info when no friends available
+    - **Make group modal** - Guidance on creating groups
+    - **Share screenshot modal** - Instructions for sharing
+  </Tab>
+  
+  <Tab title="Specific modals">
+    ### Feature modals
+    
+    - **Create New World button** - In host world modal
+    - **Purchase confirmation** - Before buying cosmetics
+    - **Unowned items** - Shows unowned cosmetics in outfit
+    - **Keybind conflict warning** - Emote wheel conflicts
+    - **Auto-install modal** - When Essential is auto-installed by 3rd party
+  </Tab>
+</Tabs>
+
+## Quality of life improvements
+
+### Convenience features
+
+<CardGroup cols={2}>
+  <Card title="Minecraft folder" icon="folder">
+    "Open Minecraft Folder" button for quick access to game files
+  </Card>
+  
+  <Card title="Changelogs" icon="clipboard-list">
+    View changelogs and update notes in Essential Menu
+  </Card>
+  
+  <Card title="Legal notices" icon="scale-balanced">
+    Access Terms of Service and Privacy Policy easily
+  </Card>
+  
+  <Card title="Timer indicators" icon="clock">
+    Visible timers on limited-time bundles in store
+  </Card>
+</CardGroup>
+
+### Keybind improvements
+
+<AccordionGroup>
+  <Accordion title="Keybind management" icon="keyboard">
+    Better keybind control:
+    
+    - **Conflict detection** - Warns about conflicts
+    - **Easy rebinding** - Simple keybind changes
+    - **Default unbinds** - Save Hotbar Activator unbound for new users (avoid Zoom conflict)
+    - **Soft-lock fixes** - Keybinds no longer soft-lock game
+  </Accordion>
+  
+  <Accordion title="Feature keybinds" icon="key">
+    Quick access keys:
+    
+    - **Screenshot Manager** - Open pictures browser
+    - **Wardrobe** - Access cosmetics
+    - **Social Menu** - Open messaging
+    - **Emote Wheel** - Display emote selector
+    - **Toggle Cosmetics** - Quick cosmetic toggle
+    - **Zoom** - Essential zoom feature
+  </Accordion>
+</AccordionGroup>
+
+### Multiplayer menu
+
+<Info>
+  Enhanced server entries with friend indicators showing which friends are on which servers and in hosted worlds.
+</Info>
+
+**Improvements:**
+- Friend indicators on servers
+- Hosted world visibility
+- Server name corrections
+- Better layout and spacing
+- Quick join to friends
+
+### Select World modal
+
+- **Long world names** - Now display correctly
+- **Long descriptions** - Proper text wrapping
+- **Better layout** - Improved spacing and organization
+
+### Onboarding
+
+<Tabs>
+  <Tab title="First launch">
+    ### User-friendly onboarding
+    
+    - **Improved onboarding** - More user-friendly process
+    - **Clear instructions** - Step-by-step guidance
+    - **Feature introduction** - Learn about Essential features
+    - **New location** - Onboarding file moved to better location
+  </Tab>
+  
+  <Tab title="Auto-install">
+    ### Third-party installation
+    
+    - **Auto-install modal** - Shows when Essential is auto-installed
+    - **Clear communication** - Explains what Essential is
+    - **Opt-out option** - Choose to disable if unwanted
+    - **Feature overview** - Highlights key features
+  </Tab>
+</Tabs>
+
+## Miscellaneous improvements
+
+### Visual enhancements
+
+- **Essential online indicator** - Shows on sneaking players (1.8.9 fixed)
+- **Drag and drop** - Rendering fixed with Fabric API 0.127.0+
+- **In-solid-block overlay** - Renders correctly on 1.8.9
+- **GUI components** - Proper rendering on macOS in 1.21.5+
+- **Avatar images** - Loading issues fixed
+- **Spacing improvements** - "Loading cosmetics" modal spacing
+
+### Text & rendering
+
+- **Markdown renderer** - Crash fixes for certain texts
+- **Date localization** - Removed from screenshot browser for consistency
+- **Link colors** - Improved hover state colors
+- **Text wrapping** - Better wrapping in various modals
+- **Username display** - Fixed UUIDs showing instead of names
+
+### Bug fixes
+
+<Accordion title="Modal issues">
+  - Fade-in transitions work on all systems
+  - Enter key confirmation on text modals
+  - Privacy dialogs show once (not on resize)
+  - Spacing and alignment corrections
+</Accordion>
+
+<Accordion title="Menu issues">
+  - Essential button positioning fixes
+  - Add/Edit Server screen button alignment (1.16.5)
+  - Mod Menu logo display (Fabric)
+  - Title screen button layout improvements
+</Accordion>
+
+## Compatibility
+
+### Mod compatibility
+
+<Check>**Working with:**</Check>
+- Fancy Menu (full compatibility)
+- Custom Main Menu
+- Mod Menu (Fabric)
+- NoChatReports (button position fixed)
+- Most UI mods
+
+### Resource pack support
+
+- Custom button textures
+- Theme customization
+- Animated textures
+- Nine-slice textures
+- UI element overrides
+
+## Customization options
+
+<CardGroup cols={2}>
+  <Card title="Appearance" icon="palette">
+    - Button texture options
+    - Resource pack themes
+    - Menu layouts
+    - Color schemes
+  </Card>
+  
+  <Card title="Behavior" icon="sliders">
+    - Notification preferences
+    - Keybind configuration
+    - Privacy settings
+    - Feature toggles
+  </Card>
+</CardGroup>
+
+## Troubleshooting
+
+<Accordion title="Buttons not showing correctly">
+  **Solution:** Ensure "Use Minecraft button texture" setting matches your preference and resource pack is compatible.
+</Accordion>
+
+<Accordion title="Social Menu performance">
+  **Solution:** Performance issues with long messages have been fixed. Update to the latest Essential version.
+</Accordion>
+
+<Accordion title="Keybinds not working">
+  **Solutions:**
+  - Check for keybind conflicts in Controls settings
+  - Verify keybinds aren't disabled
+  - Restart Minecraft after changing keybinds
+</Accordion>
+
+<Accordion title="Account switcher issues">
+  **Solutions:**
+  - Use "Refresh Session" button if session expired
+  - Re-add account if authentication fails
+  - Check Microsoft account status
+</Accordion>
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Features overview" icon="compass" href="/features/overview">
+    Explore all Essential features and capabilities
+  </Card>
+  
+  <Card title="Screenshots" icon="camera" href="/features/screenshots">
+    Learn about screenshot management and sharing
+  </Card>
+</CardGroup>

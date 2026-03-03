@@ -1,0 +1,247 @@
+---
+title: CI/CD build process
+description: How Essential builds are verified and distributed through continuous integration
+---
+
+Essential uses a dual CI/CD system to ensure build reproducibility and transparency. Every release is built twice and verified for authenticity.
+
+## Build process overview
+
+Every Essential release goes through two independent build processes:
+
+1. **Internal CI build** (self-hosted, private)
+2. **GitHub Actions build** (public, transparent)
+
+Both builds must produce bit-for-bit identical output to ensure the published source code matches the distributed binaries.
+
+## Internal CI build
+
+The first build runs on Essential's internal CI infrastructure:
+
+**Features:**
+- Faster build times with optimized runners
+- Integration tests and quality checks
+- Uploads JARs to Essential infrastructure (not yet published)
+- Publishes source code to the public GitHub repository
+- Runs additional verification steps
+
+**Outputs:**
+- Main JAR files uploaded to Essential CDN
+- Build artifacts for internal testing
+- Source code commit to GitHub
+
+<Note>
+The internal CI builds faster because it has access to cached dependencies and uses dedicated build servers.
+</Note>
+
+## GitHub Actions build
+
+The second build runs on GitHub-provided runners directly from the public repository:
+
+**Purpose:**
+- Verify source code authenticity
+- Ensure reproducible builds
+- Provide transparent build process
+- Generate public checksums
+
+**Environment:**
+- Runner: `ubuntu-latest-16-cores`
+- Java versions: 8, 16, 17, 21 (Amazon Corretto)
+- Clean environment with no cached state
+- Git submodules initialized recursively
+
+### Build workflow
+
+The GitHub Actions workflow performs these steps:
+
+```yaml
+1. Checkout repository with submodules
+2. Set up multiple Java versions
+3. Build all versions: ./gradlew build
+4. Generate SHA-256 checksums
+5. Verify against deployed files
+6. Upload checksum artifacts
+```
+
+### Build command
+
+```bash
+./gradlew build --stacktrace
+```
+
+This builds Essential for all supported Minecraft versions and platforms.
+
+## Checksum verification
+
+After building, GitHub Actions generates SHA-256 checksums for all output files:
+
+**Files checksummed:**
+- Main mod JARs: `versions/*/build/libs/*`
+- Loader stage 0: `loader/stage0/{fabric,launchwrapper,modlauncher8,modlauncher9}/build/libs/*`
+- Loader stage 1: `loader/stage1/{fabric,launchwrapper,modlauncher8,modlauncher9}/build/libs/*`
+- Loader stage 2: `loader/stage2/{fabric,launchwrapper,modlauncher8,modlauncher9}/build/libs/*`
+- Container mods: `loader/container/{fabric,launchwrapper,modlauncher8,modlauncher9}/build/libs/*`
+
+### Checksum artifact
+
+Checksums are saved to `checksums.txt` and uploaded as a GitHub Actions artifact:
+
+```bash
+sha256sum versions/*/build/libs/* loader/{container,stage{0,1,2}}/{fabric,launchwrapper,modlauncher{8,9}}/build/libs/* | tee checksums.txt
+```
+
+<Info>
+Checksum artifacts are retained for a limited time according to GitHub's retention policy. Download them promptly if you need to verify a specific build.
+</Info>
+
+## Infrastructure verification
+
+The GitHub Actions build downloads JARs from Essential's CDN and verifies they match the locally built files:
+
+### Verification process
+
+1. Build all versions from source
+2. Calculate SHA-256 checksums of built files
+3. For each platform:
+   - Query Essential API for download URL
+   - Download JAR from Essential CDN
+   - Calculate checksum of downloaded file
+   - Compare with locally built checksum
+4. Fail build if any checksums don't match
+
+### Platform naming conversion
+
+The verification script converts platform names to Essential's API format:
+
+```bash
+# Example: 1.12.2-forge → forge_1-12-2
+1.12.2-forge  ->  forge_1-12-2
+1.21.1-fabric ->  fabric_1-21-1
+```
+
+### API endpoint format
+
+```
+https://api.essential.gg/mods/v1/essential:essential/versions/{version}/platforms/{platform}/download
+```
+
+Returns:
+```json
+{
+  "url": "https://cdn.essential.gg/..."
+}
+```
+
+## Pinned JAR verification
+
+Pinned JARs (for Modrinth/CurseForge) are **not** directly verified because:
+
+1. They are deterministically derived from main JARs
+2. Verifying main JARs is sufficient
+3. Internal CI doesn't upload pinned JARs (regenerated on demand)
+
+However, their checksums are logged in the GitHub Actions output for third-party verification against Modrinth/CurseForge files.
+
+<Note>
+See `build-logic/src/main/kotlin/essential/pinned-jar.gradle.kts` for the pinned JAR generation logic.
+</Note>
+
+## Build failure handling
+
+If checksum verification fails:
+
+1. Build marked as failed
+2. Raw JAR files uploaded as artifacts (1-day retention)
+3. Developers can download and compare files
+4. Helps debug non-determinism issues
+
+```yaml
+- uses: actions/upload-artifact@v4
+  if: ${{ failure() && steps.verify.conclusion == 'failure' }}
+  with:
+    name: mod-jars
+    path: versions/*/build/libs/Essential*
+    retention-days: 1
+```
+
+## Verifying builds locally
+
+You can verify Essential files from your `.minecraft` folder:
+
+### Option 1: Build yourself
+
+1. [Build Essential](/building) from source
+2. Compare built files with installed files
+3. Use `sha256sum` (Linux/Mac) or `Get-FileHash` (Windows)
+
+### Option 2: Use GitHub checksums
+
+1. Find the GitHub Actions run for your Essential version
+2. Download the `checksums` artifact or view the "Generate checksums" log
+3. Calculate checksum of your local file
+4. Compare with the checksum from GitHub
+
+**Example (Linux/Mac):**
+```bash
+sha256sum ~/.minecraft/essential/Essential\ \(forge_1.12.2\).jar
+```
+
+**Example (Windows PowerShell):**
+```powershell
+Get-FileHash -Algorithm SHA256 Essential*.jar
+```
+
+### File locations
+
+Different Essential files are stored in different locations:
+
+**Mods folder:** `.minecraft/mods/`
+- Container mods (< 1 MB)
+- Pinned mods from Modrinth/CurseForge (> 1 MB)
+
+**Essential folder:** `.minecraft/essential/`
+- Main mod JARs: `Essential (<Loader>_<MC-Version>).jar`
+- Processed JARs: `Essential (<Loader>_<MC-Version>).processed.jar`
+
+**Libraries folder:** `.minecraft/essential/libraries/`
+- Extracted dependencies from mod JARs
+
+**Loader folder:** `.minecraft/essential/loader/`
+- `stage1.jar` - Stage 1 loader
+- `stage2.<Loader>_<MC-Version>.jar` - Stage 2 loader
+
+<Info>
+For detailed file verification instructions, see the "Verifying checksums" section in the repository README.
+</Info>
+
+## Build reproducibility
+
+Essential builds are designed to be bit-for-bit reproducible:
+
+**Requirements:**
+- Same Java versions (8, 16, 17, 21)
+- Same Gradle version (via wrapper)
+- Same source code commit
+- Same git submodule state
+- Clean build environment
+
+**Ensured by:**
+- Using Gradle wrapper (not local Gradle installation)
+- Pinning all dependency versions
+- Deterministic JAR generation
+- No timestamp or environment-specific data in outputs
+
+<Note>
+Always use `./gradlew` instead of a local Gradle installation to ensure the exact same Gradle version is used.
+</Note>
+
+## Transparency and trust
+
+The dual-build system provides transparency:
+
+- **Open source code** - Everyone can read the source
+- **Public builds** - GitHub Actions builds are fully visible
+- **Checksum verification** - Anyone can verify file authenticity
+- **Infrastructure validation** - Automated verification of deployed files
+
+This ensures the binaries you download match the published source code exactly.

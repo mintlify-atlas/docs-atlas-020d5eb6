@@ -1,0 +1,332 @@
+---
+title: CommandRegistry API
+description: Register custom commands with Essential's powerful command system
+---
+
+The CommandRegistry API provides a declarative way to create custom commands with automatic argument parsing, subcommands, and tab completion.
+
+## Overview
+
+Essential's Command API automatically describes command arguments through handler function parameters, eliminating the need for manual argument parsing. Commands support:
+
+- Default handlers for commands with no arguments
+- Subcommands (e.g., `/command subcommand`)
+- Automatic type conversion for parameters
+- Optional parameters using nullable types
+- Custom argument parsers for complex types
+
+## Getting the CommandRegistry
+
+```kotlin
+val registry = EssentialAPI.getCommandRegistry()
+```
+
+```java
+CommandRegistry registry = EssentialAPI.getCommandRegistry();
+```
+
+## Creating a command
+
+Create a class or object that extends `Command`:
+
+```kotlin
+object MyCommand : Command(
+    name = "mycommand",
+    autoHelpSubcommand = true,
+    hideFromAutocomplete = false
+) {
+    @DefaultHandler
+    fun handle() {
+        // Called when user types /mycommand with no arguments
+    }
+}
+```
+
+<ParamField path="name" type="String" required>
+  The command name (e.g., "mycommand" for `/mycommand`)
+</ParamField>
+
+<ParamField path="autoHelpSubcommand" type="Boolean" default="true">
+  Whether to automatically generate a help subcommand showing all available subcommands and their usages
+</ParamField>
+
+<ParamField path="hideFromAutocomplete" type="Boolean" default="false">
+  Whether to hide this command from Minecraft's tab completion
+</ParamField>
+
+## Registering commands
+
+Register your command with the command system:
+
+```kotlin
+MyCommand.register()
+```
+
+Or using the registry directly:
+
+```kotlin
+EssentialAPI.getCommandRegistry().registerCommand(MyCommand)
+```
+
+## Command handlers
+
+### Default handler
+
+Handles invocations with no subcommands:
+
+```kotlin
+@DefaultHandler
+fun handle() {
+    // Your logic here
+}
+```
+
+### Subcommands
+
+Create subcommands using the `@SubCommand` annotation:
+
+```kotlin
+@SubCommand("reload", aliases = ["r"], description = "Reload configuration")
+fun handleReload() {
+    // Called when user types /mycommand reload
+}
+```
+
+<ParamField path="value" type="String" required>
+  The subcommand name
+</ParamField>
+
+<ParamField path="aliases" type="Array<String>" default="[]">
+  Alternative names for this subcommand
+</ParamField>
+
+<ParamField path="description" type="String" default="">
+  Description shown in help text
+</ParamField>
+
+## Command arguments
+
+Define arguments by adding parameters to your handler functions. Essential automatically parses and validates them:
+
+### Basic types
+
+```kotlin
+@DefaultHandler
+fun handle(number: Int, message: String) {
+    // Usage: /mycommand <number> <message>
+}
+```
+
+Supported types: `String`, `Int`, `Double`, `Boolean`
+
+### Optional arguments
+
+Use nullable types in Kotlin or `Optional` in Java:
+
+```kotlin
+@DefaultHandler
+fun handle(number: Int, optional: Boolean?) {
+    // /mycommand 5 -> number=5, optional=null
+    // /mycommand 5 true -> number=5, optional=true
+}
+```
+
+```java
+void handle(int number, Optional<Boolean> optional) {
+    // Same behavior in Java
+}
+```
+
+### Parameter annotations
+
+#### @DisplayName
+
+Provide custom parameter names for usage messages:
+
+```kotlin
+@DefaultHandler
+fun handle(@DisplayName("playerName") name: String) {
+    // Usage: /mycommand <playerName>
+}
+```
+
+#### @Greedy
+
+Consume all remaining arguments:
+
+```kotlin
+@DefaultHandler
+fun handle(@Greedy message: String) {
+    // /mycommand hello world -> message="hello world"
+}
+```
+
+<Note>
+  `@Greedy` should be used on the last parameter, as it consumes all remaining input.
+</Note>
+
+#### @Quotable
+
+Allow quoted strings to contain spaces:
+
+```kotlin
+@DefaultHandler
+fun handle(@Quotable message: String, name: String) {
+    // /mycommand "hello world" player -> message="hello world", name="player"
+    // /mycommand hello player -> message="hello", name="player"
+}
+```
+
+#### @Options
+
+Restrict parameter to specific values:
+
+```kotlin
+@SubCommand("mode")
+fun handleMode(@Options(["easy", "normal", "hard"]) difficulty: String) {
+    // Only allows: /mycommand mode easy|normal|hard
+}
+```
+
+#### @Take
+
+Consume a specific number of arguments:
+
+```kotlin
+@DefaultHandler
+fun handle(@Take(3, allowLess = false) coords: String) {
+    // Requires exactly 3 arguments
+}
+```
+
+<ParamField path="value" type="Int" required>
+  Number of arguments to consume
+</ParamField>
+
+<ParamField path="allowLess" type="Boolean" default="true">
+  Whether to allow fewer arguments than specified
+</ParamField>
+
+## Custom argument parsers
+
+For custom types, implement `ArgumentParser` and register it:
+
+```kotlin
+class PlayerParser : ArgumentParser<Player> {
+    override fun parse(arguments: ArgumentQueue, param: Parameter): Player? {
+        val name = arguments.poll()
+        return Minecraft.getMinecraft().theWorld?.playerEntities
+            ?.find { it.name.equals(name, ignoreCase = true) }
+    }
+    
+    override fun complete(arguments: ArgumentQueue, param: Parameter): List<String> {
+        return Minecraft.getMinecraft().theWorld?.playerEntities
+            ?.map { it.name } ?: emptyList()
+    }
+}
+
+// Register the parser
+registry.registerParser(Player::class.java, PlayerParser())
+```
+
+### ArgumentQueue methods
+
+<ParamField path="poll()" type="String">
+  Get the next argument and remove it from the queue. Throws exception if queue is empty.
+</ParamField>
+
+<ParamField path="peek()" type="String?">
+  Get the next argument without removing it. Returns null if queue is empty.
+</ParamField>
+
+<ParamField path="isEmpty()" type="Boolean">
+  Check if there are no more arguments available.
+</ParamField>
+
+<Tip>
+  Implement the `complete()` method in your parser to provide tab completion suggestions.
+</Tip>
+
+## Command aliases
+
+Define global aliases for your command:
+
+```kotlin
+object MyCommand : Command("mycommand") {
+    override val commandAliases = setOf(
+        Alias("mc"),
+        Alias("mycmd", hideFromAutocomplete = true)
+    )
+}
+```
+
+## Unregistering commands
+
+Remove a command from the registry:
+
+```kotlin
+EssentialAPI.getCommandRegistry().unregisterCommand(MyCommand)
+```
+
+## Complete example
+
+```kotlin
+object TeleportCommand : Command("tp", autoHelpSubcommand = true) {
+    
+    override val commandAliases = setOf(Alias("teleport"))
+    
+    @DefaultHandler
+    fun handleDefault() {
+        EssentialAPI.getNotifications().push(
+            "Teleport",
+            "Use /tp <player> or /tp <x> <y> <z>"
+        )
+    }
+    
+    @SubCommand("player", description = "Teleport to a player")
+    fun handlePlayer(target: String) {
+        val player = findPlayer(target)
+        if (player != null) {
+            // Teleport logic
+            EssentialAPI.getNotifications().push(
+                "Teleport",
+                "Teleported to ${player.name}"
+            )
+        }
+    }
+    
+    @SubCommand("coords", description = "Teleport to coordinates")
+    fun handleCoords(
+        @DisplayName("x") xPos: Double,
+        @DisplayName("y") yPos: Double,
+        @DisplayName("z") zPos: Double
+    ) {
+        // Teleport to coordinates
+        EssentialAPI.getNotifications().push(
+            "Teleport",
+            "Teleported to $xPos, $yPos, $zPos"
+        )
+    }
+    
+    private fun findPlayer(name: String) = 
+        Minecraft.getMinecraft().theWorld?.playerEntities
+            ?.find { it.name.equals(name, ignoreCase = true) }
+}
+
+// Register the command
+TeleportCommand.register()
+```
+
+## Best practices
+
+<Tip>
+  Use `object` instead of `class` in Kotlin for commands to create a singleton instance.
+</Tip>
+
+<Note>
+  Parameter names from your source code are used in usage messages. Use `@DisplayName` if your build process strips parameter names or if you want custom names.
+</Note>
+
+<Tip>
+  Enable `autoHelpSubcommand` to automatically generate a help command that lists all available subcommands.
+</Tip>

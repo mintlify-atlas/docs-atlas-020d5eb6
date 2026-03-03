@@ -1,0 +1,210 @@
+---
+title: Installation
+description: How to install Essential for Minecraft Java Edition
+---
+
+## Installation methods
+
+There are several ways to install Essential for Minecraft Java Edition, depending on your preference and setup.
+
+### Method 1: Essential Installer (Recommended)
+
+<Steps>
+  <Step title="Download the installer">
+    Visit [essential.gg/download](https://essential.gg/download) and download the Essential Installer for your operating system.
+  </Step>
+  
+  <Step title="Run the installer">
+    Execute the installer and follow the on-screen instructions. The installer will automatically detect your Minecraft installation and mod loader.
+  </Step>
+  
+  <Step title="Launch Minecraft">
+    Start your Minecraft launcher and select the Essential profile. The mod will be automatically loaded.
+  </Step>
+</Steps>
+
+<Note>
+  The installer creates a "container" mod that downloads the latest version of Essential on first launch. This ensures you always have access to the newest features and fixes.
+</Note>
+
+### Method 2: Manual installation
+
+<Steps>
+  <Step title="Choose your platform">
+    Determine which mod loader you're using:
+    - **Forge** (Minecraft 1.8.9, 1.12.2, 1.16.2+)
+    - **Fabric** (Minecraft 1.16.2+)
+    - **NeoForge** (Minecraft 1.20.4+)
+  </Step>
+  
+  <Step title="Download the mod file">
+    Download the appropriate Essential jar file:
+    
+    **Option A: Container mod** (from essential.gg/download)
+    - Small file size (< 1 MB)
+    - Downloads the latest Essential version on first launch
+    - Automatically updates to new versions
+    
+    **Option B: Pinned mod** (from Modrinth/CurseForge)
+    - Larger file size (includes full Essential code)
+    - Contains a specific Essential version
+    - Suitable for modpacks and stable environments
+  </Step>
+  
+  <Step title="Install the mod">
+    Place the downloaded jar file in your `.minecraft/mods` folder:
+    
+    <CodeGroup>
+    ```bash Windows
+    %APPDATA%\.minecraft\mods
+    ```
+    
+    ```bash macOS
+    ~/Library/Application Support/minecraft/mods
+    ```
+    
+    ```bash Linux
+    ~/.minecraft/mods
+    ```
+    </CodeGroup>
+  </Step>
+  
+  <Step title="Launch Minecraft">
+    Start Minecraft with your mod loader. Essential will load automatically.
+    
+    If you installed the container mod, Essential will download the full mod on first launch (this may take a moment).
+  </Step>
+</Steps>
+
+## Version compatibility
+
+Essential supports a wide range of Minecraft versions:
+
+<AccordionGroup>
+  <Accordion title="Forge compatibility">
+    Essential is compatible with Forge on the following Minecraft versions:
+    - 1.8.9
+    - 1.12.2
+    - 1.16.2, 1.17.1, 1.18.2
+    - 1.19.2, 1.19.3, 1.19.4
+    - 1.20.1, 1.20.2, 1.20.4, 1.20.6
+    - 1.21.1, 1.21.3, 1.21.4, 1.21.5, 1.21.7
+    
+    **Minimum Forge version**: 33+ (for modern versions)
+  </Accordion>
+  
+  <Accordion title="Fabric compatibility">
+    Essential is compatible with Fabric on the following Minecraft versions:
+    - 1.16.2, 1.17.1, 1.18.1, 1.18.2
+    - 1.19, 1.19.2, 1.19.3, 1.19.4
+    - 1.20, 1.20.1, 1.20.2, 1.20.4, 1.20.6
+    - 1.21.1, 1.21.3, 1.21.4, 1.21.5, 1.21.6, 1.21.7, 1.21.9, 1.21.11
+    
+    **Minimum Fabric Loader version**: 0.11.0+
+    
+    <Note>
+      Some Fabric versions require Fabric API modules. These are automatically included with Essential.
+    </Note>
+  </Accordion>
+  
+  <Accordion title="NeoForge compatibility">
+    Essential is compatible with NeoForge on the following Minecraft versions:
+    - 1.20.4, 1.20.6
+    - 1.21.1, 1.21.3, 1.21.4, 1.21.5, 1.21.7
+  </Accordion>
+</AccordionGroup>
+
+## File locations
+
+After installation, Essential creates several files in your Minecraft directory:
+
+### Mod files
+
+**In `.minecraft/mods/`:**
+- Container mod: Small jar file (< 1 MB), typically named with Minecraft version
+- Pinned mod: Larger jar file with both Minecraft and Essential version in the name
+
+### Runtime files
+
+**In `.minecraft/essential/`:**
+- `Essential (<Mod-Loader>_<MC-Version>).jar` - Main Essential mod file
+- `Essential (<Mod-Loader>_<MC-Version>).processed.jar` - Temporary processed file
+
+**In `.minecraft/essential/loader/`:**
+- `stage1.jar` - First stage loader
+- `stage2.<Mod-Loader>_<MC-Version>.jar` - Second stage loader
+
+**In `.minecraft/essential/libraries/`:**
+- Extracted library dependencies
+
+<Note>
+  These runtime files are automatically managed by Essential. You don't need to manually modify them.
+</Note>
+
+## Verifying installation
+
+<Steps>
+  <Step title="Launch Minecraft">
+    Start your Minecraft client with the mod loader you installed Essential for.
+  </Step>
+  
+  <Step title="Check the main menu">
+    Look for Essential branding or UI elements on the main menu.
+  </Step>
+  
+  <Step title="Check the mods list">
+    - **Forge/NeoForge**: Click "Mods" from the main menu
+    - **Fabric**: Install Mod Menu and check the mods list
+    
+    You should see "Essential" listed with version 1.3.10.6 (or newer).
+  </Step>
+  
+  <Step title="Access Essential settings">
+    Press the Essential keybind (check your controls) or look for Essential menu options to confirm the mod is fully loaded.
+  </Step>
+</Steps>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Essential not appearing in mods list">
+    - Ensure the jar file is in the correct `.minecraft/mods` folder
+    - Verify you're launching with the correct mod loader (Forge/Fabric/NeoForge)
+    - Check that your Minecraft version is supported
+    - Review the game log for any error messages
+  </Accordion>
+  
+  <Accordion title="Container mod downloads slowly">
+    The container mod downloads Essential on first launch. This requires an internet connection and may take a few minutes depending on your connection speed.
+    
+    If downloads fail, check your firewall settings or try the pinned mod from Modrinth/CurseForge instead.
+  </Accordion>
+  
+  <Accordion title="Conflicts with other mods">
+    Essential is designed to be compatible with most mods. However, if you experience issues:
+    
+    - Try launching with only Essential installed
+    - Check for known incompatibilities in the Discord community
+    - Report issues at [essential.gg/support](https://essential.gg/support)
+  </Accordion>
+  
+  <Accordion title="Wrong Minecraft version">
+    Ensure you've downloaded the Essential version that matches your Minecraft version and mod loader. The version format is:
+    
+    `Essential (<Mod-Loader>_<MC-Version>).jar`
+    
+    For example: `Essential (Fabric_1.20.4).jar`
+  </Accordion>
+</AccordionGroup>
+
+<Warning>
+  Essential is a **client-side only mod**. It does not need to be installed on servers and will not work if placed in a server's mods folder.
+</Warning>
+
+## Getting help
+
+If you need assistance with installation:
+
+- Join the [Essential Discord](https://essential.gg/discord) for community support
+- Visit the [Essential Wiki](https://essential.gg/wiki) for detailed guides
+- Submit issues at [essential.gg/support](https://essential.gg/support)

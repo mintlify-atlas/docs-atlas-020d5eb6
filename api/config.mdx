@@ -1,0 +1,394 @@
+---
+title: EssentialConfig API
+description: Access Essential's user settings and preferences
+---
+
+The EssentialConfig API provides read/write access to Essential's built-in settings from the Essential Settings menu.
+
+## Overview
+
+Essential exposes many user preferences through the `EssentialConfig` interface, allowing mods to:
+
+- Read user preferences to adapt behavior
+- Modify settings programmatically
+- React to user configuration changes
+
+## Getting the config
+
+```kotlin
+val config = EssentialAPI.getConfig()
+```
+
+```java
+EssentialConfig config = EssentialAPI.getConfig();
+```
+
+## Notification settings
+
+Control Essential's notification system:
+
+<ParamField path="disableAllNotifications" type="Boolean">
+  Block all Essential notifications. When `true`, no notifications will be shown.
+</ParamField>
+
+<ParamField path="friendConnectionStatus" type="Boolean">
+  Show notifications when friends come online or go offline
+</ParamField>
+
+<ParamField path="messageReceivedNotifications" type="Boolean">
+  Show notifications when receiving direct messages
+</ParamField>
+
+<ParamField path="groupMessageReceivedNotifications" type="Boolean">
+  Show notifications when receiving group messages
+</ParamField>
+
+<ParamField path="messageSound" type="Boolean">
+  Play a sound when receiving messages
+</ParamField>
+
+<ParamField path="updateModal" type="Boolean">
+  Display a notification modal after Essential updates
+</ParamField>
+
+### Example
+
+```kotlin
+val config = EssentialAPI.getConfig()
+
+// Check if notifications are enabled before showing
+if (!config.disableAllNotifications) {
+    EssentialAPI.getNotifications().push(
+        "My Mod",
+        "Important update available"
+    )
+}
+
+// Respect user's message notification preference
+fun onMessageReceived(message: String) {
+    if (config.messageReceivedNotifications) {
+        showMessageNotification(message)
+    }
+    
+    if (config.messageSound) {
+        playMessageSound()
+    }
+}
+```
+
+## Social settings
+
+Settings related to Essential's social features:
+
+<ParamField path="openToFriends" type="Boolean">
+  Show the option to open singleplayer worlds to friends
+</ParamField>
+
+<ParamField path="sendServerUpdates" type="Boolean">
+  Share the player's current server with friends
+</ParamField>
+
+<ParamField path="friendRequestPrivacy" type="Int">
+  Friend request privacy level:
+  - `0` = Anyone can send requests
+  - `1` = Only friends of friends can send requests  
+  - `2` = Nobody can send requests
+</ParamField>
+
+<ParamField path="showEssentialIndicatorOnTab" type="Boolean">
+  Show an icon in the tab list on players using Essential
+</ParamField>
+
+<ParamField path="showEssentialIndicatorOnNametag" type="Boolean">
+  Show an icon on name tags of players using Essential
+</ParamField>
+
+### Example
+
+```kotlin
+// Check privacy settings before sending friend request
+fun canSendFriendRequest(relationship: FriendRelationship): Boolean {
+    return when (config.friendRequestPrivacy) {
+        0 -> true // Anyone
+        1 -> relationship == FriendRelationship.FRIEND_OF_FRIEND
+        2 -> false // Nobody
+        else -> false
+    }
+}
+```
+
+## UI settings
+
+<ParamField path="currentMultiplayerTab" type="Int">
+  The multiplayer tab the player last used:
+  - `0` = Favourite servers
+  - `1` = Servers with friends
+  - `2` = Discover servers
+</ParamField>
+
+<ParamField path="linkWarning" type="Boolean">
+  Show a confirmation modal before opening links to trusted hosts
+</ParamField>
+
+<ParamField path="modCoreWarning" type="Boolean">
+  Show a warning popup when using ModCore
+</ParamField>
+
+## Zoom settings
+
+Settings for Essential's zoom feature:
+
+<ParamField path="zoomSmoothCamera" type="Boolean">
+  Use the cinematic camera when zooming
+</ParamField>
+
+<ParamField path="smoothZoomAnimation" type="Boolean">
+  Animate zooming in and out smoothly
+</ParamField>
+
+<ParamField path="toggleToZoom" type="Boolean">
+  Zoom key toggles zoom instead of requiring hold
+</ParamField>
+
+### Example
+
+```kotlin
+// Implement custom zoom that respects user preferences
+fun applyZoom() {
+    val config = EssentialAPI.getConfig()
+    
+    if (config.smoothZoomAnimation) {
+        animateZoom(targetFov)
+    } else {
+        setZoomImmediate(targetFov)
+    }
+    
+    if (config.zoomSmoothCamera) {
+        enableCinematicCamera()
+    }
+}
+```
+
+## Session settings
+
+<ParamField path="autoRefreshSession" type="Boolean">
+  Automatically refresh the active Minecraft session if expired when connecting to a server
+</ParamField>
+
+## Cosmetics settings
+
+<ParamField path="hideCosmeticsWhenServerOverridesSkin" type="Boolean">
+  When enabled and the server overrides a skin, all cosmetics are hidden on that player. Useful for game modes like Murder Mystery where cosmetics could provide unfair advantages.
+</ParamField>
+
+### Example
+
+```kotlin
+// Check if cosmetics should be rendered
+fun shouldRenderCosmetics(player: EntityPlayer): Boolean {
+    val hasSkinOverride = serverHasOverriddenSkin(player)
+    val config = EssentialAPI.getConfig()
+    
+    return !(hasSkinOverride && config.hideCosmeticsWhenServerOverridesSkin)
+}
+```
+
+## Screenshot settings
+
+<ParamField path="essentialScreenshots" type="Boolean">
+  Enable Essential's screenshot manager
+</ParamField>
+
+<ParamField path="screenshotSounds" type="Boolean">
+  Play a sound when capturing a screenshot
+</ParamField>
+
+<ParamField path="enableVanillaScreenshotMessage" type="Boolean">
+  Show the vanilla Minecraft screenshot message in chat when capturing
+</ParamField>
+
+### Example
+
+```kotlin
+// Handle screenshot capture respecting user preferences
+fun onScreenshotCaptured() {
+    val config = EssentialAPI.getConfig()
+    
+    if (config.screenshotSounds) {
+        playSound("camera_shutter")
+    }
+    
+    if (!config.enableVanillaScreenshotMessage) {
+        // Suppress vanilla message
+        cancelVanillaMessage()
+    }
+}
+```
+
+## Discord integration
+
+<ParamField path="discordRichPresence" type="Boolean">
+  Enable Discord Rich Presence
+</ParamField>
+
+<ParamField path="discordAllowAskToJoin" type="Boolean">
+  Enable Discord's Ask To Join feature
+</ParamField>
+
+<ParamField path="discordShowUsernameAndAvatar" type="Boolean">
+  Show the user's username and avatar on Discord Rich Presence
+</ParamField>
+
+<ParamField path="discordShowCurrentServer" type="Boolean">
+  Show the current server on Discord Rich Presence
+</ParamField>
+
+<ParamField path="streamerMode" type="Boolean">
+  Disable all notifications and notification sounds (for streaming)
+</ParamField>
+
+### Example
+
+```kotlin
+// Update Discord Rich Presence based on settings
+fun updateDiscordPresence(server: String) {
+    val config = EssentialAPI.getConfig()
+    
+    if (!config.discordRichPresence) return
+    
+    val presence = DiscordPresence().apply {
+        if (config.discordShowCurrentServer && !config.streamerMode) {
+            details = "Playing on $server"
+        } else {
+            details = "Playing Minecraft"
+        }
+        
+        if (config.discordShowUsernameAndAvatar) {
+            largeImageKey = "player_avatar"
+            largeImageText = Minecraft.getMinecraft().session.username
+        }
+    }
+    
+    updatePresence(presence)
+}
+```
+
+## Other settings
+
+<ParamField path="timeFormat" type="Int">
+  Time format for dates and timestamps:
+  - `0` = 12-hour format (03:00 AM, 03:00 PM)
+  - `1` = 24-hour format (03:00, 15:00)
+</ParamField>
+
+### Example
+
+```kotlin
+// Format time based on user preference
+fun formatTime(hour: Int, minute: Int): String {
+    val config = EssentialAPI.getConfig()
+    
+    return when (config.timeFormat) {
+        0 -> {
+            val period = if (hour >= 12) "PM" else "AM"
+            val displayHour = if (hour > 12) hour - 12 else if (hour == 0) 12 else hour
+            String.format("%02d:%02d %s", displayHour, minute, period)
+        }
+        1 -> String.format("%02d:%02d", hour, minute)
+        else -> String.format("%02d:%02d", hour, minute)
+    }
+}
+```
+
+## Deprecated settings
+
+These settings are deprecated and no longer have any effect:
+
+- `smoothZoomAlgorithm` - Removed
+- `essentialFull` - No longer used
+- `essentialGuiScale` - Now always auto (0)
+- `discordSdk` - No longer used
+- `cosmeticArmorSetting` - No longer used
+- `overrideGuiScale` - Replaced by essentialGuiScale
+
+## Complete example
+
+```kotlin
+import gg.essential.api.EssentialAPI
+
+object MyMod {
+    
+    private val config = EssentialAPI.getConfig()
+    
+    fun initialize() {
+        // Respect notification preferences
+        if (!config.disableAllNotifications && !config.streamerMode) {
+            EssentialAPI.getNotifications().push(
+                "My Mod",
+                "Initialized successfully"
+            )
+        }
+    }
+    
+    fun sendNotification(title: String, message: String) {
+        // Check user preferences before showing notifications
+        if (config.disableAllNotifications || config.streamerMode) {
+            return
+        }
+        
+        EssentialAPI.getNotifications().push(title, message)
+    }
+    
+    fun handleFriendOnline(friendName: String) {
+        // Only notify if user wants friend status notifications
+        if (config.friendConnectionStatus) {
+            sendNotification(
+                "Friend Online",
+                "$friendName is now online"
+            )
+        }
+    }
+    
+    fun renderPlayerCosmetics(player: EntityPlayer): Boolean {
+        // Check if server has overridden skin
+        val hasSkinOverride = checkServerSkinOverride(player)
+        
+        // Respect user setting for hiding cosmetics
+        return !(hasSkinOverride && config.hideCosmeticsWhenServerOverridesSkin)
+    }
+    
+    fun formatTimestamp(timestamp: Long): String {
+        val date = Date(timestamp)
+        val hour = date.hours
+        val minute = date.minutes
+        
+        return when (config.timeFormat) {
+            0 -> {
+                val period = if (hour >= 12) "PM" else "AM"
+                val displayHour = if (hour > 12) hour - 12 else if (hour == 0) 12 else hour
+                "$displayHour:${minute.toString().padStart(2, '0')} $period"
+            }
+            1 -> "${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}"
+            else -> "${hour}:${minute.toString().padStart(2, '0')}"
+        }
+    }
+}
+```
+
+## Best practices
+
+<Tip>
+  Always check `disableAllNotifications` and `streamerMode` before showing notifications to respect user preferences.
+</Tip>
+
+<Note>
+  EssentialConfig properties are mutable. You can both read and write settings, but consider whether your mod should modify user preferences.
+</Note>
+
+<Tip>
+  Use config settings to make your mod's behavior consistent with Essential's features. For example, respect `timeFormat` when displaying timestamps.
+</Tip>
+
+<Note>
+  Changes to config values persist across sessions. Only modify settings when explicitly requested by the user.
+</Note>
